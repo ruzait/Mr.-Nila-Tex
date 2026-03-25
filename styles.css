@@ -2096,17 +2096,15 @@ button {
     }
     
     .about-image-secondary {
-        position: relative;
-        right: auto;
-        bottom: auto;
-        width: 50%;
-        margin-top: -30px;
-        margin-left: 30px;
+        position: absolute;
+        right: -20px;
+        bottom: -30px;
+        width: 45%;
     }
     
     .about-experience {
         bottom: 10px;
-        left: -20px;
+        left: -15px;
         padding: 15px 25px;
     }
     
@@ -2273,13 +2271,8 @@ button {
     }
     
     .products-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .product-card {
-        max-width: 400px;
-        margin: 0 auto;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
     }
     
     .offers-banner {
@@ -2752,8 +2745,8 @@ button {
     
     .about-image-secondary {
         width: 40%;
-        margin-top: -15px;
-        margin-left: 15px;
+        right: -15px;
+        bottom: -20px;
     }
     
     .about-image-secondary img {
