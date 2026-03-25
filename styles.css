@@ -42,6 +42,7 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 body {
@@ -2210,22 +2211,20 @@ button {
 }
 
 @media (max-width: 768px) {
-    * {
-        max-width: 100vw;
+    html, body {
         overflow-x: hidden;
+        max-width: 100%;
     }
     
-    .container {
+    .container, .container-fluid {
         max-width: 100%;
         padding: 0 20px;
     }
     
-    body {
-        overflow-x: hidden;
-    }
-    
     .navbar {
         padding: 15px 0;
+        max-width: 100%;
+        overflow-x: hidden;
     }
     
     .nav-logo {
@@ -2592,9 +2591,9 @@ button {
 }
 
 @media (max-width: 576px) {
-    * {
-        max-width: 100vw;
+    html, body {
         overflow-x: hidden;
+        max-width: 100%;
     }
     
     .container {
@@ -3102,9 +3101,9 @@ button {
 }
 
 @media (max-width: 400px) {
-    * {
-        max-width: 100vw;
+    html, body {
         overflow-x: hidden;
+        max-width: 100%;
     }
     
     .hero-title {
@@ -3230,9 +3229,9 @@ button {
 }
 
 @media (max-width: 350px) {
-    * {
-        max-width: 100vw;
+    html, body {
         overflow-x: hidden;
+        max-width: 100%;
     }
     
     .container {
@@ -3597,6 +3596,11 @@ button {
 }
 
 @media all and (max-width: 768px) {
+    html, body {
+        overflow-x: hidden;
+        max-width: 100%;
+    }
+    
     .showcase {
         display: block !important;
         visibility: visible !important;
