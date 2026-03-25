@@ -1,17 +1,8 @@
 let products = [];
 
 const SHEET_ID = '1suwLcLGU4W5oonN_5Mt4h6HHOzCLER7U';
-
-const fallbackProducts = [
-    { id: 1, name: 'Premium Cotton T-Shirt', category: 'men', price: 1500, oldPrice: 2000, image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400', backImage: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400', badge: 'new', rating: 4.5, description: 'Comfortable cotton t-shirt' },
-    { id: 2, name: 'Classic Blue Jeans', category: 'men', price: 2500, oldPrice: 3500, image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400', backImage: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400', badge: 'sale', rating: 4.8, description: 'Stylish blue denim jeans' },
-    { id: 3, name: 'Elegant Silk Saree', category: 'women', price: 8500, oldPrice: 12000, image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400', backImage: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400', badge: 'new', rating: 5, description: 'Premium silk saree' },
-    { id: 4, name: 'Summer Floral Dress', category: 'women', price: 3200, oldPrice: 4000, image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400', backImage: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400', badge: 'hot', rating: 4.3, description: 'Beautiful floral summer dress' },
-    { id: 5, name: 'Kids Party Frock', category: 'kids', price: 1800, oldPrice: 2500, image: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=400', backImage: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=400', badge: 'sale', rating: 4.7, description: 'Cute party wear frock' },
-    { id: 6, name: 'Boys Casual Shirt', category: 'kids', price: 1200, oldPrice: 1500, image: 'https://images.unsplash.com/photo-1621072156002-e2fccdc0b176?w=400', backImage: 'https://images.unsplash.com/photo-1621072156002-e2fccdc0b176?w=400', badge: 'new', rating: 4.5, description: 'Comfortable boys casual shirt' },
-    { id: 7, name: 'Pure Silk Fabric', category: 'fabric', price: 5500, oldPrice: 7000, image: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=400', backImage: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=400', badge: 'hot', rating: 4.9, description: 'Premium quality silk fabric' },
-    { id: 8, name: 'Cotton Lawn Fabric', category: 'fabric', price: 2000, oldPrice: 2800, image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=400', backImage: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=400', badge: '', rating: 4.2, description: 'Lightweight cotton lawn' },
-];
+const WHATSAPP_NUMBER = '94754552963';
+const COUNTDOWN_END_DATE = '2026-04-01T23:59:59';
 
 function convertGoogleDriveLink(url) {
     if (!url || !url.includes('drive.google.com')) {
@@ -62,9 +53,7 @@ async function loadProductsFromExcel() {
         return true;
     } catch (error) {
         console.error('Error loading products:', error);
-        products = fallbackProducts;
-        console.log('Using fallback products:', products.length);
-        return true;
+        return false;
     }
 }
 
@@ -85,13 +74,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     const loaded = await loadProductsFromExcel();
     
-    console.log('Products count:', products.length);
-    
     if (loaded && products.length > 0) {
-        renderProducts('all');
-    } else {
-        console.log('Products not loaded, showing fallback');
-        products = fallbackProducts;
         renderProducts('all');
     }
     initDynamicContent();
@@ -298,7 +281,7 @@ function renderProducts(filter) {
             const product = products.find(p => p.id === id);
             if (product) {
                 const message = `Hi! I'm interested in:\n\n${product.name}\nPrice: Rs. ${product.price.toLocaleString()}\n\nPlease let me know if this is available.`;
-                const whatsappUrl = `https://wa.me/94754552963?text=${encodeURIComponent(message)}`;
+                const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
                 window.open(whatsappUrl, '_blank');
             }
         });
@@ -412,12 +395,11 @@ function initTestimonials() {
 
 function initCountdown() {
     const countdown = document.getElementById('countdown');
-    let countdownDate = new Date();
-    countdownDate.setDate(countdownDate.getDate() + 7);
+    let countdownDate = new Date(COUNTDOWN_END_DATE).getTime();
 
     function update() {
         const now = new Date().getTime();
-        const distance = countdownDate.getTime() - now;
+        const distance = countdownDate - now;
 
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));

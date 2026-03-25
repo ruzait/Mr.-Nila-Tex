@@ -1139,8 +1139,7 @@ button {
 .offers-badge {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 25px;
+    padding: 12px 30px;
     background: rgba(201,169,89,0.2);
     border: 1px solid var(--gold);
     border-radius: 50px;
@@ -1152,9 +1151,14 @@ button {
     margin-bottom: 20px;
 }
 
+.badge-text {
+    margin: 0;
+    padding-left: 15px;
+}
+
 .badge-pulse {
     position: absolute;
-    left: 12px;
+    left: 15px;
     width: 10px;
     height: 10px;
     background: var(--gold);
@@ -1194,6 +1198,13 @@ button {
     gap: 12px;
     margin-bottom: 25px;
     flex-wrap: wrap;
+}
+
+.countdown-note {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    font-style: italic;
 }
 
 .countdown-item {
@@ -2722,6 +2733,10 @@ button {
         margin-bottom: 20px;
     }
     
+    .badge-text {
+        padding-left: 12px;
+    }
+    
     .badge-pulse {
         width: 8px;
         height: 8px;
@@ -2753,6 +2768,10 @@ button {
     .countdown-label {
         font-size: 0.6rem;
         letter-spacing: 0.5px;
+    }
+    
+    .countdown-note {
+        font-size: 0.75rem;
     }
     
     .about-image-main img {
