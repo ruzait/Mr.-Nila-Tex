@@ -3,6 +3,15 @@ let products = [];
 const SHEET_ID = '1suwLcLGU4W5oonN_5Mt4h6HHOzCLER7U';
 const WHATSAPP_NUMBER = '94754552963';
 const COUNTDOWN_END_DATE = '2026-04-01T23:59:59';
+const SHOP_START_YEAR = 2022;
+const EXPERIENCE_SUFFIX = 'Years';
+
+const BADGES = {
+    new: { label: 'New', bgColor: '#c9a959', textColor: '#1a1a1a' },
+    hot: { label: 'Hot', bgColor: '#e74c3c', textColor: '#ffffff' },
+    trend: { label: 'Trending', bgColor: '#27ae60', textColor: '#ffffff' }, 
+    limited: { label: 'Limited', bgColor: '#e67e22', textColor: '#ffffff' }
+};
 
 function convertGoogleDriveLink(url) {
     if (!url || !url.includes('drive.google.com')) {
@@ -96,32 +105,36 @@ function initWhatsAppFloat() {
     const hero = document.querySelector('.hero');
     
     if (whatsappBtn && hero) {
-        whatsappBtn.classList.add('hidden');
-        
-        window.addEventListener('scroll', () => {
+        function checkScroll() {
             const heroBottom = hero.offsetTop + hero.offsetHeight;
             const scrollY = window.scrollY;
             
-            if (scrollY > heroBottom - 100) {
-                whatsappBtn.classList.remove('hidden');
+            if (scrollY > heroBottom) {
+                whatsappBtn.classList.add('show');
             } else {
-                whatsappBtn.classList.add('hidden');
+                whatsappBtn.classList.remove('show');
             }
-        });
+        }
+        
+        window.addEventListener('scroll', checkScroll);
+        checkScroll();
     }
 }
 
 function initDynamicContent() {
-    const shopStartYear = 2022;
     const currentYear = new Date().getFullYear();
-    const yearsExperience = currentYear - shopStartYear;
+    const yearsExperience = currentYear - SHOP_START_YEAR;
     
     document.querySelectorAll('.exp-number').forEach(el => {
         el.textContent = yearsExperience + '+';
     });
 
     document.querySelectorAll('.exp-text').forEach(el => {
-        el.textContent = 'Years';
+        el.textContent = EXPERIENCE_SUFFIX;
+    });
+
+    document.querySelectorAll('.about-years').forEach(el => {
+        el.textContent = yearsExperience;
     });
 
     document.querySelectorAll('.current-year').forEach(el => {
@@ -227,13 +240,15 @@ function renderProducts(filter) {
         card.setAttribute('data-category', product.category);
 
         const stars = generateStars(product.rating);
-        const badgeHTML = product.badge 
-            ? `<span class="badge badge-${product.badge}">${product.badge}</span>` 
-            : '';
+        let badgeHTML = '';
+        if (product.badge && BADGES[product.badge]) {
+            const badge = BADGES[product.badge];
+            badgeHTML = `<span class="badge" style="background:${badge.bgColor};color:${badge.textColor};">${badge.label}</span>`;
+        }
 
         card.innerHTML = `
-            <div class="product-badges">${badgeHTML}</div>
             <div class="product-image">
+                <div class="product-badges">${badgeHTML}</div>
                 <div class="image-flip">
                     <img src="${product.image}" alt="${product.name}" class="image-front" loading="lazy">
                     <img src="${product.backImage}" alt="${product.name} back" class="image-back" loading="lazy">
