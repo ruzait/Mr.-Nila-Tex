@@ -56,11 +56,14 @@ async function loadProductsFromExcel() {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
+    const isMobile = window.innerWidth <= 768;
+    
     AOS.init({
-        duration: 800,
+        duration: isMobile ? 400 : 800,
         easing: 'ease-out-cubic',
         once: true,
-        offset: 50
+        offset: 50,
+        disable: isMobile
     });
 
     const preloader = document.getElementById('preloader');
@@ -141,13 +144,31 @@ function initNavbar() {
     navToggle.addEventListener('click', () => {
         navToggle.classList.toggle('active');
         navMenu.classList.toggle('active');
+        document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
     });
 
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', () => {
             navToggle.classList.remove('active');
             navMenu.classList.remove('active');
+            document.body.style.overflow = '';
         });
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+            navToggle.classList.remove('active');
+            navMenu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 1024 && navMenu.classList.contains('active')) {
+            navToggle.classList.remove('active');
+            navMenu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     });
 }
 
@@ -315,18 +336,25 @@ function initTestimonials() {
     const prev = document.querySelector('.testimonial-prev');
     const next = document.querySelector('.testimonial-next');
     let index = 0;
+    let touchStartX = 0;
+    let touchEndX = 0;
 
     function getVisibleSlides() {
-        return window.innerWidth < 768 ? 1 : 3;
+        if (window.innerWidth <= 400) return 1;
+        if (window.innerWidth <= 768) return 1;
+        if (window.innerWidth <= 1024) return 2;
+        return 3;
     }
 
     function updatePosition() {
-        const slideWidth = track.querySelector('.testimonial-card').offsetWidth + 30;
+        const cards = track.querySelectorAll('.testimonial-card');
+        if (cards.length === 0) return;
+        const slideWidth = cards[0].offsetWidth + (window.innerWidth <= 768 ? 15 : 30);
         track.style.transform = `translateX(-${index * slideWidth}px)`;
     }
 
     next.addEventListener('click', () => {
-        const maxIndex = track.children.length - getVisibleSlides();
+        const maxIndex = Math.max(0, track.children.length - getVisibleSlides());
         if (index < maxIndex) {
             index++;
             updatePosition();
@@ -338,6 +366,33 @@ function initTestimonials() {
             index--;
             updatePosition();
         }
+    });
+
+    track.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    track.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const diff = touchStartX - touchEndX;
+        
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                next.click();
+            } else {
+                prev.click();
+            }
+        }
+    }
+
+    window.addEventListener('resize', () => {
+        index = 0;
+        updatePosition();
     });
 }
 
