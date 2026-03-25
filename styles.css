@@ -2210,9 +2210,18 @@ button {
 }
 
 @media (max-width: 768px) {
+    * {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+    
     .container {
         max-width: 100%;
         padding: 0 20px;
+    }
+    
+    body {
+        overflow-x: hidden;
     }
     
     .navbar {
@@ -2583,6 +2592,11 @@ button {
 }
 
 @media (max-width: 576px) {
+    * {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+    
     .container {
         padding: 0 15px;
     }
@@ -3088,6 +3102,11 @@ button {
 }
 
 @media (max-width: 400px) {
+    * {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+    
     .hero-title {
         font-size: clamp(1.8rem, 16vw, 2.5rem);
     }
@@ -3211,6 +3230,11 @@ button {
 }
 
 @media (max-width: 350px) {
+    * {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+    
     .container {
         padding: 0 10px;
     }
