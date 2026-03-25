@@ -86,7 +86,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     const loaded = await loadProductsFromExcel();
     
+    console.log('Products count:', products.length);
+    
     if (loaded && products.length > 0) {
+        renderProducts('all');
+    } else {
+        console.log('Products not loaded, showing fallback');
+        products = fallbackProducts;
         renderProducts('all');
     }
     initDynamicContent();

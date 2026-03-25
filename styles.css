@@ -857,8 +857,8 @@ button {
 
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
 }
 
 .product-card {
@@ -2271,7 +2271,7 @@ button {
     }
     
     .products-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 15px;
     }
     
@@ -2615,6 +2615,7 @@ button {
     .showcase,
     .about {
         padding: 50px 0;
+        display: block !important;
     }
     
     .categories-grid {
@@ -2649,6 +2650,15 @@ button {
         font-size: 0.8rem;
     }
     
+    .showcase {
+        display: block !important;
+    }
+    
+    .products-grid {
+        display: grid !important;
+        visibility: visible !important;
+    }
+    
     .products-filter {
         margin-bottom: 25px;
         gap: 8px;
@@ -2661,7 +2671,8 @@ button {
     }
     
     .products-grid {
-        gap: 15px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
     }
     
     .product-info {
@@ -3035,6 +3046,22 @@ button {
     
     .feature-content p {
         font-size: 0.7rem;
+    }
+    
+    .showcase {
+        padding: 30px 0;
+        display: block !important;
+    }
+    
+    .products-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+    
+    .product-card {
+        display: block !important;
+        visibility: visible !important;
     }
     
     .category-card {
