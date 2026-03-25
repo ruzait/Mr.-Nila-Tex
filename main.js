@@ -72,11 +72,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     const isMobile = window.innerWidth <= 768;
     
     AOS.init({
-        duration: isMobile ? 400 : 800,
+        duration: 800,
         easing: 'ease-out-cubic',
         once: true,
-        offset: 50,
-        disable: isMobile
+        offset: 50
     });
 
     const preloader = document.getElementById('preloader');
@@ -243,8 +242,6 @@ function renderProducts(filter) {
         const card = document.createElement('div');
         card.className = 'product-card';
         card.setAttribute('data-category', product.category);
-        card.setAttribute('data-aos', 'fade-up');
-        card.setAttribute('data-aos-delay', (index % 6) * 100);
 
         const stars = generateStars(product.rating);
         const badgeHTML = product.badge 
@@ -273,7 +270,7 @@ function renderProducts(filter) {
                     ${product.oldPrice ? `<span class="price-old">Rs. ${product.oldPrice.toLocaleString()}</span>` : ''}
                 </div>
                 <div class="product-rating">
-                    <div class="stars">${stars}</div>
+                    <div class="stars" style="display:inline-flex;flex-wrap:nowrap;white-space:nowrap;">${stars}</div>
                     <span>(${product.rating})</span>
                 </div>
                 <a href="#contact" class="visit-btn">
@@ -285,8 +282,6 @@ function renderProducts(filter) {
 
         grid.appendChild(card);
     });
-
-    AOS.refresh();
 
     document.querySelectorAll('.add-wishlist').forEach(btn => {
         btn.addEventListener('click', function() {
