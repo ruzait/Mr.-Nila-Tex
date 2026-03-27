@@ -15,6 +15,7 @@ const CONFIG = {
     SHOW_DISCOUNT_PERCENT: true,
     SHOW_BADGE: true,
     SHOW_ADD_TO_CART: false,
+    GLOBAL_DISCOUNT: 0,
     PRICE_COLORS: {
         DEFAULT: '#111111',
         OLD_PRICE: '#888888',
@@ -173,7 +174,9 @@ async function loadProductsFromExcel() {
                 image: convertGoogleDriveLink(item.Image || item.image || CONFIG.PLACEHOLDER_IMAGE),
                 backImage: convertGoogleDriveLink(item['Back Image'] || item.backImage || item.Image || item.image || CONFIG.PLACEHOLDER_IMAGE),
                 badge: item.Badge || item.badge || '',
-                description: item.Description || item.description || ''
+                description: item.Description || item.description || '',
+                brand: item.Brand || item.brand || '',
+                itemCode: item.ItemCode || item.itemCode || item.Code || item.code || ''
             };
         });
         
@@ -397,8 +400,12 @@ function renderProducts(filter) {
         }
 
         const categoryName = formatCategoryName(product.category);
-        const discount = product.discount || 0;
-        const priceStyles = getPriceStyles(discount);
+        const hasGlobalDiscount = CONFIG.GLOBAL_DISCOUNT > 0;
+        const effectiveDiscount = hasGlobalDiscount ? CONFIG.GLOBAL_DISCOUNT : (product.discount || 0);
+        const displayPrice = hasGlobalDiscount ? product.price * (1 - CONFIG.GLOBAL_DISCOUNT / 100) : product.price;
+        const originalPrice = product.oldPrice || product.price;
+        const showOldPrice = hasGlobalDiscount ? (originalPrice !== displayPrice) : (product.oldPrice && product.oldPrice !== product.price);
+        const priceStyles = getPriceStyles(effectiveDiscount);
         
         card.innerHTML = `
             <div class="product-image">
@@ -409,12 +416,12 @@ function renderProducts(filter) {
                 </div>
             </div>
             <div class="product-info">
-                <span class="product-category">${categoryName}</span>
+                <span class="product-category">${categoryName}${product.brand ? ` <i class="fas fa-tag brand-tag"></i> <span class="brand-name">${product.brand}</span>` : ''}</span>
                 <h3 class="product-title">${product.name}</h3>
                 <div class="product-price-box">
-                    <span class="price-current" style="color:${priceStyles.priceColor}">${CONFIG.CURRENCY_SYMBOL}${formatPrice(product.price)}</span>
-                    ${product.oldPrice ? `<span class="price-old" style="color:${priceStyles.oldPriceColor}">${CONFIG.CURRENCY_SYMBOL}${formatPrice(product.oldPrice)}</span>` : ''}
-                    ${discount > 0 ? `<span class="discount-tag" style="background:${priceStyles.discountBadgeBg}">-${discount}%</span>` : ''}
+                    <span class="price-current" style="color:${priceStyles.priceColor}">${CONFIG.CURRENCY_SYMBOL}${formatPrice(displayPrice)}</span>
+                    ${showOldPrice ? `<span class="price-old" style="color:${priceStyles.oldPriceColor}">${CONFIG.CURRENCY_SYMBOL}${formatPrice(originalPrice)}</span>` : ''}
+                    ${effectiveDiscount > 0 ? `<span class="discount-tag" style="background:${priceStyles.discountBadgeBg}">-${effectiveDiscount}%</span>` : ''}
                 </div>
                 <button class="product-btn whatsapp-btn" data-id="${product.id}">
                     <i class="fab fa-whatsapp"></i>
@@ -432,8 +439,13 @@ function renderProducts(filter) {
             const product = products.find(p => p.id === id);
             if (product) {
                 const category = formatCategoryName(product.category);
-                const discount = product.discount || 0;
-                const message = `✨ *${CONFIG.SHOP_NAME.toUpperCase()}* ✨\n\n━━━━━━━━━━━━━━━━━━\n🛍️ *Product:* ${product.name}\n📂 *Category:* ${category}\n💰 *Price:* ${CONFIG.CURRENCY_SYMBOL}${formatPrice(product.price)}${product.oldPrice ? `\n📉 *Was:* ${CONFIG.CURRENCY_SYMBOL}${formatPrice(product.oldPrice)} (${discount}% OFF)` : ''}\n📦 *Code:* ${CONFIG.PRODUCT_CODE_PREFIX}-${String(product.id).padStart(4, '0')}\n━━━━━━━━━━━━━━━━━━\n\nHello! I'm interested in this product. Please share more details. 👋`;
+                const hasGlobalDiscount = CONFIG.GLOBAL_DISCOUNT > 0;
+                const effectiveDiscount = hasGlobalDiscount ? CONFIG.GLOBAL_DISCOUNT : (product.discount || 0);
+                const displayPrice = hasGlobalDiscount ? product.price * (1 - CONFIG.GLOBAL_DISCOUNT / 100) : product.price;
+                const originalPrice = product.oldPrice || product.price;
+                const showOldPrice = hasGlobalDiscount ? (originalPrice !== displayPrice) : (product.oldPrice && product.oldPrice !== product.price);
+                const discountText = hasGlobalDiscount ? `*Global OFFER:* ${effectiveDiscount}% OFF` : `*Was:* ${CONFIG.CURRENCY_SYMBOL}${formatPrice(originalPrice)} (${effectiveDiscount}% OFF)`;
+                const message = `✨ *${CONFIG.SHOP_NAME.toUpperCase()}* ✨\n\n━━━━━━━━━━━━━━━━━━\n🛍️ *Product:* ${product.name}\n📂 *Category:* ${category}${product.brand ? `\n🏷️ *Brand:* ${product.brand}` : ''}\n💰 *Price:* ${CONFIG.CURRENCY_SYMBOL}${formatPrice(displayPrice)}${showOldPrice ? `\n📉 ${discountText}` : ''}\n📦 *Code:* ${product.itemCode || `${CONFIG.PRODUCT_CODE_PREFIX}-${String(product.id).padStart(4, '0')}`}\n━━━━━━━━━━━━━━━━━━\n\nHello! I'm interested in this product. Please share more details. 👋`;
                 const whatsappUrl = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
                 window.open(whatsappUrl, '_blank');
             }
