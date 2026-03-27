@@ -11,12 +11,12 @@
     <meta property="og:title" content="Mr. Nila Tex - Premium Clothing & Textile Showroom | Addalaichenai">
     <meta property="og:description" content="Discover premium fashion for the whole family. Quality textiles, latest trends, and exceptional service.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mrnilatex.lk">
+    <meta property="og:url" content="https://mr-nilatex.netlify.app">
     <meta property="og:image" content="images/sections/og-image.jpg">
     
     <title>Mr. Nila Tex - Premium Clothing & Textile Showroom | Addalaichenai, Sri Lanka</title>
     
-    <link rel="canonical" href="https://mrnilatex.lk">
+    <link rel="canonical" href="https://mr-nilatex.netlify.app">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -73,7 +73,7 @@
             
             <div class="nav-actions">
                 <button class="nav-search" id="searchBtn"><i class="fas fa-search"></i></button>
-                <button class="nav-toggle" id="navToggle">
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -81,6 +81,8 @@
             </div>
         </div>
     </nav>
+    
+    <div class="nav-overlay" id="navOverlay"></div>
 
     <div class="search-overlay" id="searchOverlay">
         <div class="search-container">
@@ -185,11 +187,6 @@
                     <div class="category-content">
                         <span class="category-tag">Collection 2026</span>
                         <h3 class="category-title">Men's Wear</h3>
-                        <p class="category-count">Premium Shirts, Trousers & More</p>
-                        <a href="#collections" class="category-link">
-                            <span>View Collection</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
                     </div>
                 </div>
                 <div class="category-card" data-aos="fade-up" data-aos-delay="100">
@@ -200,11 +197,6 @@
                     <div class="category-content">
                         <span class="category-tag">New Arrivals</span>
                         <h3 class="category-title">Women's Wear</h3>
-                        <p class="category-count">Elegant Sarees, Dresses & More</p>
-                        <a href="#collections" class="category-link">
-                            <span>View Collection</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
                     </div>
                 </div>
                 <div class="category-card" data-aos="fade-up" data-aos-delay="200">
@@ -215,11 +207,6 @@
                     <div class="category-content">
                         <span class="category-tag">Kids Special</span>
                         <h3 class="category-title">Kids Wear</h3>
-                        <p class="category-count">Adorable Outfits for Little Ones</p>
-                        <a href="#collections" class="category-link">
-                            <span>View Collection</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
                     </div>
                 </div>
                 <div class="category-card" data-aos="fade-up" data-aos-delay="300">
@@ -230,11 +217,6 @@
                     <div class="category-content">
                         <span class="category-tag">Premium Quality</span>
                         <h3 class="category-title">Textiles & Fabrics</h3>
-                        <p class="category-count">Cotton, Silk & Designer Fabrics</p>
-                        <a href="#collections" class="category-link">
-                            <span>View Collection</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -249,11 +231,6 @@
                 <p class="section-subtitle">Explore our premium collection with quality fabrics and latest designs</p>
             </div>
             <div class="products-filter" data-aos="fade-up">
-                <button class="filter-btn active" data-filter="all">All Items</button>
-                <button class="filter-btn" data-filter="men">Men</button>
-                <button class="filter-btn" data-filter="women">Women</button>
-                <button class="filter-btn" data-filter="kids">Kids</button>
-                <button class="filter-btn" data-filter="fabric">Fabrics</button>
             </div>
             <div class="products-grid" id="productsGrid">
             </div>
@@ -311,7 +288,7 @@
             <div class="about-grid">
                 <div class="about-images">
                     <div class="about-image-main">
-                        <img src="images/sections/about-main.jpg" alt="Mr. Nila Tex Showroom" lotheading="lazy">
+                        <img src="images/sections/about-main.jpg" alt="Mr. Nila Tex Showroom" loading="lazy">
                     </div>
                     <div class="about-image-secondary">
                         <img src="images/sections/about-secondary.jpg" alt="Textile Display" loading="lazy">
@@ -472,10 +449,10 @@
                             </div>
                         </div>
                         <div class="contact-socials">
-                            <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="social-link" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                            <a href="#" class="social-link" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                            <a href="https://facebook.com/mrnilatex" class="social-link" aria-label="Facebook" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://instagram.com/mrnilatex" class="social-link" aria-label="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                            <a href="https://wa.me/94754552963" class="social-link" aria-label="WhatsApp" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                            <a href="https://tiktok.com/@mrnilatex" class="social-link" aria-label="TikTok" target="_blank"><i class="fab fa-tiktok"></i></a>
                         </div>
                     </div>
                     <div class="contact-form-wrapper" data-aos="fade-left">
@@ -527,10 +504,10 @@
                             Your trusted destination for premium clothing and textiles in Addalaichenai, Sri Lanka since 2022.
                         </p>
                         <div class="footer-socials">
-                            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                            <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                            <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                            <a href="https://facebook.com/mrnilatex" aria-label="Facebook" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://instagram.com/mrnilatex" aria-label="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                            <a href="https://wa.me/94754552963" aria-label="WhatsApp" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                            <a href="https://tiktok.com/@mrnilatex" aria-label="TikTok" target="_blank"><i class="fab fa-tiktok"></i></a>
                         </div>
                     </div>
                     <div class="footer-links">
@@ -551,6 +528,14 @@
                             <li><a href="#collections">Kids Wear</a></li>
                             <li><a href="#collections">Textiles & Fabrics</a></li>
                         </ul>
+                    </div>
+                    <div class="footer-newsletter">
+                        <h4>Stay Updated</h4>
+                        <p>Subscribe for new arrivals and exclusive offers</p>
+                        <form class="newsletter-form" id="newsletterForm">
+                            <input type="email" placeholder="Enter your email" required>
+                            <button type="submit"><i class="fas fa-arrow-right"></i></button>
+                        </form>
                     </div>
                 </div>
             </div>
