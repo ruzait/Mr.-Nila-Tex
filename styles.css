@@ -527,11 +527,6 @@ button {
 }
 
 .search-close svg {
-    width: 12px;
-    height: 12px;
-}
-
-.search-close svg {
     width: 16px;
     height: 16px;
 }
@@ -590,59 +585,11 @@ button {
 
 .hero-title {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(2.8rem, 9vw, 5rem);
-    font-weight: 700;
-    color: var(--pure-white);
-    margin-bottom: 15px;
-    letter-spacing: 0.1em;
-}
-
-.hero-tagline {
-    font-family: 'Playfair Display', serif;
-    font-size: 1rem;
-    font-style: italic;
-    color: var(--gold);
-    margin-bottom: 12px;
-}
-
-.hero-tagline i {
-    margin-right: 6px;
-}
-
-.hero-subtitle {
-    font-size: 0.95rem;
-    color: rgba(255,255,255,0.85);
-    margin-bottom: 25px;
-    line-height: 1.6;
-}
-
-.hero-location {
-    color: var(--gold);
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 8px;
-}
-
-.hero-buttons {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.hero-title {
-    font-family: 'Playfair Display', serif;
     font-size: clamp(3rem, 10vw, 6rem);
     font-weight: 700;
     color: var(--pure-white);
     margin-bottom: 20px;
     letter-spacing: 0.1em;
-}
-
-.hero-title {
     overflow: hidden;
 }
 
@@ -1816,10 +1763,6 @@ button {
     color: var(--primary-black);
 }
 
-
-    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
-}
-
 .contact-form h3 {
     font-family: 'Playfair Display', serif;
     font-size: 1.75rem;
@@ -2532,6 +2475,26 @@ button {
 }
 
 @media (max-width: 576px) {
+    .mobile-search-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, var(--gold) 0%, #d4b76a 100%);
+        border: none;
+        border-radius: 50%;
+        color: var(--primary-black);
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .mobile-search-btn:hover {
+        background: linear-gradient(135deg, #d4b76a 0%, var(--gold) 100%);
+        box-shadow: 0 4px 15px rgba(201, 169, 89, 0.4);
+    }
+
     html {
         overflow-x: hidden;
     }

@@ -1,5 +1,6 @@
 ================================================================================
-                     PROJECT REPORT: MR. NILA TEX WEBSITE
+                    PROJECT REPORT: MR. NILA TEX WEBSITE
+                         Updated: March 2026
 ================================================================================
 
 1. INTRODUCTION
@@ -22,8 +23,6 @@ convenient ways for customers to inquire about products and place orders.
 
 2. OBJECTIVES
 --------------------------------------------------------------------------------
-The website aims to achieve the following objectives:
-
 Primary Objectives:
 - Establish a strong online presence for Mr. Nila Tex
 - Showcase the business's product collections for men, women, kids, and textiles
@@ -55,19 +54,20 @@ while the page loads. The preloader fades out smoothly after 1.5 seconds.
 
 Navigation Bar: A fixed header containing the brand logo with gem icon, 
 navigation menu links (Home, Collections, Categories, Offers, About, Contact), 
-search functionality, and mobile hamburger menu. The navbar changes appearance 
-on scroll (transparent to white background with shadow).
+search functionality (desktop input field, mobile overlay), and mobile 
+hamburger menu. The navbar changes appearance on scroll (transparent to white 
+background with shadow).
 
 Hero Section: A full-screen hero slider showcasing three background images 
 with overlay. Features animated brand name "NILA TEX" with gradient text effect, 
 tagline "Premium Clothing & Textiles for the Whole Family", location display 
 "Addalaichenai, Sri Lanka", and two call-to-action buttons ("Explore 
 Collections" and "Visit Showroom"). Includes slider navigation dots at the 
-bottom.
+bottom and automatic slide rotation every 5 seconds.
 
 Features Bar: A horizontal bar displaying four key selling points with icons: 
 Premium Quality (gem icon), Best Prices (tag icon), Personal Service (users 
-icon), and Years of Service (store icon with "6+" dynamic counter).
+icon), and Years of Service (store icon with dynamic counter based on 2022).
 
 Product Categories: Four distinct category cards with images featuring Men, 
 Women, Kids, and Textiles/Fabrics sections. Each card has attractive hover 
@@ -80,7 +80,8 @@ Includes category filter buttons and real-time search functionality.
 
 Special Offers: A promotional banner featuring Ramadan Special Sale with 
 background image, overlay, pulsing badge animation, 30% discount announcement, 
-and a live countdown timer showing days, hours, minutes, and seconds.
+and a live countdown timer showing days, hours, minutes, and seconds. 
+Automatically shows "Offer Ended!" message when countdown reaches zero.
 
 About Section: Company information with two showroom images, dynamic 
 experience counter, company history, and key features list (Premium Quality, 
@@ -98,8 +99,8 @@ form with name, phone, email, and message fields that redirects to WhatsApp
 with pre-filled message. Social media links for Facebook, Instagram, 
 WhatsApp, and TikTok.
 
-Footer: Contains brand information, quick links, category links, newsletter 
-signup form, social media connections, and dynamic copyright year.
+Footer: Contains brand information, quick links, category links, contact 
+information, social media connections, and dynamic copyright year.
 
 Floating Elements:
 - WhatsApp floating button (appears after scrolling past hero)
@@ -108,7 +109,6 @@ Floating Elements:
 4. TECHNOLOGIES USED
 --------------------------------------------------------------------------------
 Frontend Technologies:
-
 - HTML5: Semantic markup for page structure with proper document type
 - CSS3: Modern styling with CSS variables, Grid, Flexbox, animations
 - JavaScript (ES6+): Interactive functionality and dynamic content
@@ -118,14 +118,12 @@ Frontend Technologies:
 - CSS Custom Properties: Theme variables for colors and spacing
 
 Backend/Data Management:
-
 - Google Sheets: External data storage for products (CSV format)
 - Google Forms: Product entry system for easy data management
 - PapaParse 5.4.1: JavaScript library for parsing CSV data from Google Sheets
 - LocalStorage: Client-side caching for better performance
 
 External Services:
-
 - Google Maps Embed API: Store location display
 - Netlify: Hosting platform for the live website (mr-nilatex.netlify.app)
 - WhatsApp API: Direct messaging functionality for orders
@@ -137,7 +135,6 @@ products without coding knowledge.
 5. DESIGN & UI/UX
 --------------------------------------------------------------------------------
 Layout Structure:
-
 The website follows a single-page design with smooth scroll navigation. 
 Sections are arranged hierarchically in a logical order:
 1. Preloader (loading screen)
@@ -156,16 +153,14 @@ This allows visitors to find information easily without navigating through
 multiple pages.
 
 Color Scheme:
-
 - Primary Black (#1a1a1a): Sophistication and elegance
-- Gold (#d4af37): Luxury and premium quality association
+- Gold (#c9a959): Luxury and premium quality association
 - Pure White (#ffffff): Clean and professional appearance
-- Cream (#fafafa): Soft background tone
+- Cream (#f8f6f3): Soft background tone
 - Dark Gray (#4a4a4a): Body text color
 - Medium Gray (#6a6a6a): Secondary text
 
 Typography:
-
 - Headings: Playfair Display (serif font) - elegant and premium feel
   - Weights: 400, 500, 600, 700
   - Used for: Hero title, section titles, logo
@@ -174,7 +169,6 @@ Typography:
   - Used for: Paragraphs, buttons, navigation, product info
 
 Responsiveness:
-
 The website is fully responsive with optimized layouts for:
 - Desktop: 1024px and above (5-column product grid, 4-column features)
 - Tablet: 768px to 1023px (reduced columns, adjusted spacing)
@@ -184,7 +178,8 @@ Mobile Features:
 - Hamburger menu for navigation
 - Touch-friendly sliders and carousels
 - Responsive grid layouts (2-3 columns)
-- Larger tap targets for buttons (minimum 44px)
+- Mobile search button with overlay
+- Larger tap targets for buttons (minimum 42px)
 - Swipe-enabled testimonial carousel
 
 6. FEATURES
@@ -196,6 +191,7 @@ Navigation Menu:
 - Search functionality with navbar input (desktop) and dropdown overlay (mobile)
 - Navigation overlay (dark background) for mobile menu
 - Menu closes on link click or Escape key
+- Window resize handler to close menu on desktop width
 
 Preloader:
 - Animated loading screen with brand name "NILA TEX"
@@ -225,9 +221,10 @@ Search Functionality:
 - Desktop: Always-visible search bar in navbar
   - Expands on focus
   - Real-time filtering as user types
-- Mobile: Search icon opens dropdown overlay
+- Mobile: Gold circular search icon opens dropdown overlay
   - Clean, non-blocking overlay design
   - Close button to dismiss
+  - Syncs between desktop and mobile search inputs
 - Search works with category filters
 - "No products found" message with clear button
 
@@ -238,7 +235,7 @@ Performance Features:
 - Image error handling with placeholder fallback
 
 Data Validation:
-- Product name validation (required, min 2 chars)
+- Product name validation (required)
 - Price validation (must be > 0)
 - Image URL validation
 - Invalid products skipped with console warning
@@ -247,6 +244,7 @@ Offers and Promotions:
 - Ramadan Special Sale banner with 30% discount
 - Background image with dark overlay
 - Live countdown timer (days, hours, minutes, seconds)
+- Countdown expiration handling (shows "Offer Ended!" message)
 - Pulsing badge animation for attention
 - Clear call-to-action button to visit showroom
 
@@ -254,36 +252,21 @@ Contact and WhatsApp Integration:
 - Floating WhatsApp button (appears after hero section)
 - Tooltip "Chat with us!" on hover
 - Individual product WhatsApp order buttons
-- Pre-formatted message template with product details (name, category, brand, price, discount, item code)
+- Pre-formatted message template with product details
 - Contact form with WhatsApp redirect:
   - Form fields: name, phone, email, message
   - Pre-filled WhatsApp message with all form data
   - Bold formatting for easy reading
   - Opens in new tab for convenience
-- Newsletter signup form in footer
 - Social media links: Facebook, Instagram, WhatsApp, TikTok
 
 Contact Form Features:
 - Clean, modern form design with floating labels
 - Input fields with proper validation
-- WhatsApp redirect with formatted message:
-  *Mr. Nila Tex - New Inquiry*
-  
-  *Name:* [user name]
-  *Phone:* [phone number]
-  *Email:* [email address]
-  *Message:* [message]
+- WhatsApp redirect with formatted message
 - Form resets after submission
 - Button shows "Send via WhatsApp" with WhatsApp icon
 - Responsive design for all devices
-
-Contact Section Styling:
-- Matching card design for contact-info and contact-form-wrapper
-- Enhanced padding and spacing
-- Hover effects on cards with transform and shadow
-- Contact items with icon, title, and description
-- Social media icons with hover animations
-- Fully responsive layouts
 
 SEO Basics:
 - Semantic HTML5 structure with proper heading hierarchy (H1, H2, H3)
@@ -356,63 +339,58 @@ Google Indexing:
 - Canonical URLs to prevent duplicate content
 - Fast loading times for better ranking
 
-8. IMPROVEMENTS & UPDATES
+8. BUG FIXES & IMPROVEMENTS
 --------------------------------------------------------------------------------
-Recent Enhancements (2026):
+Bugs Fixed (March 2026):
 
-Product Management System:
-- Google Forms integration for easy product entry
-- Automatic timestamp capture on form submission
-- Products sorted by timestamp (newest first)
-- Fallback to row order for same timestamps
-- Column mapping updated for new Google Form fields
+1. Mobile Search Button Visibility (HIGH PRIORITY)
+   - Issue: The mobile search button (.mobile-search-btn) was hidden on all devices
+   - Cause: No media query to enable it on mobile viewports
+   - Fix: Added @media (max-width: 576px) rule to display and style the button
+   - Result: Mobile users can now access search via gold circular button
 
-Performance Optimization:
-- LocalStorage caching with 5-minute TTL
-- Cache read/write with error handling
-- Fallback to expired cache on network failure
-- Cache clear utility function
+2. Duplicate .hero-title CSS Rules (HIGH PRIORITY)
+   - Issue: Multiple duplicate definitions of .hero-title class
+   - Cause: CSS code duplication during development
+   - Fix: Consolidated all styles into single, proper definition
+   - Result: Clean CSS with consistent hero title styling
 
-Data Validation:
-- Product name validation (required, min 2 chars)
-- Price validation (must be > 0)
-- URL validation for images
-- Invalid products skipped with console warning
+3. Orphaned CSS Block (HIGH PRIORITY)
+   - Issue: Broken CSS at lines 1771-1773 with orphaned closing braces
+   - Cause: Malformed CSS structure with disconnected block
+   - Fix: Removed orphaned CSS and consolidated closing braces
+   - Result: Valid CSS structure without parsing errors
 
-Image Handling:
-- Image URL validation before display
-- Placeholder fallback for invalid URLs
-- Onerror handler for broken images
-- Google Drive thumbnail URL conversion
+4. Duplicate .search-close svg CSS (MEDIUM PRIORITY)
+   - Issue: Two identical .search-close svg selector blocks
+   - Cause: CSS duplication during styling
+   - Fix: Removed duplicate block, kept final definition
+   - Result: Cleaner CSS with no redundancy
 
-Search Functionality:
-- Redesigned navbar search bar (desktop)
-- Mobile-friendly dropdown overlay (mobile)
-- Real-time filtering as user types
-- Searches by: name, category, brand, item code
-- Works combined with category filters
-- SVG icons for reliability (no Font Awesome dependency)
-- "No products found" message with clear button
+5. Unused Variable in JavaScript (LOW PRIORITY)
+   - Issue: isMobile variable declared but never used
+   - Cause: Leftover code from mobile detection implementation
+   - Fix: Removed unused variable declaration
+   - Result: Cleaner JavaScript without dead code
 
-Contact Form Improvements (Latest):
-- WhatsApp integration with pre-filled messages
-- Form validation (trim whitespace, check all fields)
-- Error handling for missing elements
-- Message formatted with bold text for readability
-- Button updated to "Send via WhatsApp"
-- Clean form styling with floating labels
-- Responsive design for all screen sizes
-- Matching card styles for contact-info and form wrapper
-- Enhanced hover effects and transitions
-- Proper spacing and padding throughout
-- Fixed z-index issues for form visibility
+6. Countdown Negative Values (HIGH PRIORITY)
+   - Issue: Countdown showed negative numbers after expiration
+   - Cause: No handling for distance <= 0 condition
+   - Fix: Added expiration check that sets all values to 00
+   - Result: Graceful handling of countdown completion
 
-Style Improvements:
-- Gold gradient theme for buttons
-- Smooth animations and transitions
-- Modern card designs
-- Responsive layouts for all devices
-- Enhanced contact section styling
+7. Google Maps Embed URL (MEDIUM PRIORITY)
+   - Issue: Deprecated v1 parameter and malformed URL
+   - Cause: Incomplete Google Maps embed URL structure
+   - Fix: Corrected URL parameters and structure
+   - Result: Valid Google Maps embed
+
+Code Quality Improvements:
+- Removed CSS duplicates for better maintainability
+- Fixed orphaned/invalid CSS blocks
+- Added proper JavaScript error handling
+- Improved countdown timer logic
+- Enhanced mobile search accessibility
 
 9. CHALLENGES FACED
 --------------------------------------------------------------------------------
@@ -472,26 +450,28 @@ Full-screen search overlay blocked product viewing. Solution was
 creating a dropdown-style overlay that doesn't block the page, 
 allowing users to see products while searching.
 
-Challenge 10: Google Form Integration
+Challenge 10: Mobile Search Accessibility
+Ensuring search works on mobile devices required proper button styling 
+and media queries. Solution was adding mobile-specific CSS to show 
+and style the search button.
+
+Challenge 11: Google Form Integration
 Need for easy product management without spreadsheet editing. Solution 
 was creating Google Form linked to sheet with auto-timestamp for 
 automatic sorting of new products.
 
-Challenge 11: Contact Form WhatsApp Integration
-Converting form submissions to WhatsApp messages required proper message 
-formatting and URL encoding. Solution was:
-- Collecting all form fields (name, phone, email, message)
-- Formatting message with bold text using asterisks
-- Using encodeURIComponent for proper URL encoding
-- Opening WhatsApp in new tab for better UX
-
 Challenge 12: Form Visibility Issues
 CSS z-index and positioning causing form elements to be hidden. 
-Solution was:
-- Adding proper z-index values to form elements
-- Setting overflow: visible on containers
-- Adding margin-top to form groups
-- Using background colors on labels for overlap prevention
+Solution was adding proper z-index values to form elements and 
+using overflow: visible on containers.
+
+Challenge 13: Countdown Timer Edge Cases
+Countdown reaching zero needed proper handling. Solution was adding 
+expiration check that stops the timer and shows "Offer Ended!" message.
+
+Challenge 14: CSS Code Organization
+Duplicate CSS rules and orphaned blocks causing maintenance issues. 
+Solution was consolidating duplicate styles and removing invalid CSS blocks.
 
 10. FUTURE IMPROVEMENTS
 --------------------------------------------------------------------------------
@@ -523,11 +503,12 @@ Technical Improvements:
 - CDN Integration: Faster image delivery globally
 - Image Optimization: WebP format for better compression
 - Advanced Analytics: Detailed visitor behavior tracking
+- Service Worker: Better caching strategies
 
 Scalability Considerations:
 - The current Google Sheets approach can handle up to 1000+ products
 - For larger catalogs, consider migrating to a proper database
-- Implement caching for better performance
+- Implement pagination for product grids
 - Consider headless CMS for content management
 
 11. CONCLUSION
@@ -546,17 +527,12 @@ where WhatsApp is widely used for communication. The Google Sheets-based
 product management system allows non-technical staff to easily update products 
 without coding knowledge.
 
-The recent enhancements including caching, data validation, improved 
-search functionality, and WhatsApp contact form integration have made the 
-website more robust and user-friendly. The timestamp-based sorting from 
-Google Forms ensures new products always appear first, keeping the 
-inventory fresh and encouraging repeat visits.
-
-The contact section now features a modern form design with WhatsApp 
-integration, allowing customers to easily send inquiries. The form 
-validates input, formats the message professionally, and redirects 
-to WhatsApp with all details pre-filled - providing a seamless customer 
-experience that aligns with local communication preferences.
+The recent bug fixes and improvements have made the website more robust and 
+reliable:
+- Mobile search now works properly on all devices
+- CSS is clean and maintainable without duplicates
+- Countdown timer handles expiration gracefully
+- JavaScript is optimized without unused variables
 
 Key Learning Outcomes:
 - Understanding of responsive web design principles
@@ -564,6 +540,7 @@ Key Learning Outcomes:
 - Implementation of WhatsApp business integration
 - Client-side caching strategies
 - Data validation and error handling
+- CSS code organization and maintenance
 - SEO best practices for local businesses
 - Mobile-first design approach
 - Performance optimization techniques
@@ -571,6 +548,7 @@ Key Learning Outcomes:
 - JavaScript DOM manipulation and event handling
 - SVG icon implementation
 - Accessibility considerations in web design
+- Bug fixing and code quality improvement
 
 This project demonstrates that with modern web technologies, small businesses 
 can establish a professional online presence without significant investment 

@@ -317,8 +317,6 @@ async function loadProductsFromExcel() {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-    const isMobile = window.innerWidth <= 768;
-    
     AOS.init({
         duration: 800,
         easing: 'ease-out-cubic',
@@ -809,10 +807,21 @@ function initCountdown() {
     if (!countdown) return;
     
     let countdownDate = new Date(CONFIG.COUNTDOWN_END_DATE).getTime();
+    let intervalId = null;
 
     function update() {
         const now = new Date().getTime();
         const distance = countdownDate - now;
+
+        if (distance <= 0) {
+            document.getElementById('days').textContent = '00';
+            document.getElementById('hours').textContent = '00';
+            document.getElementById('minutes').textContent = '00';
+            document.getElementById('seconds').textContent = '00';
+            countdown.querySelector('.offers-subtitle').innerHTML = 'Offer Ended!<br>Check back for new deals.';
+            if (intervalId) clearInterval(intervalId);
+            return;
+        }
 
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -826,7 +835,7 @@ function initCountdown() {
     }
 
     update();
-    setInterval(update, 1000);
+    intervalId = setInterval(update, 1000);
 }
 
 function initForms() {
