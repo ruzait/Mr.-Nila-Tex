@@ -831,45 +831,43 @@ function initCountdown() {
 
 function initForms() {
     const contactForm = document.getElementById('contactForm');
-    const newsletterForm = document.getElementById('newsletterForm');
 
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const btn = this.querySelector('button[type="submit"]');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-            btn.disabled = true;
-
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fas fa-check"></i> Sent!';
-                btn.style.background = '#27ae60';
-                this.reset();
-
-                setTimeout(() => {
-                    btn.innerHTML = '<span>Send Message</span><i class="fas fa-paper-plane"></i>';
-                    btn.style.background = '';
-                    btn.disabled = false;
-                }, 3000);
-            }, 2000);
-        });
-    }
-
-    if (newsletterForm) {
-        newsletterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = this.querySelector('button');
-            const input = this.querySelector('input');
             
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            const nameEl = document.getElementById('name');
+            const phoneEl = document.getElementById('phone');
+            const emailEl = document.getElementById('email');
+            const messageEl = document.getElementById('message');
             
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fas fa-check"></i>';
-                input.value = '';
-                
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="fas fa-arrow-right"></i>';
-                }, 2000);
-            }, 1500);
+            if (!nameEl || !phoneEl || !emailEl || !messageEl) {
+                console.error('Form elements not found');
+                return;
+            }
+            
+            const name = nameEl.value.trim();
+            const phone = phoneEl.value.trim();
+            const email = emailEl.value.trim();
+            const message = messageEl.value.trim();
+            
+            if (!name || !phone || !email || !message) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const whatsappMessage = `*Mr. Nila Tex - New Inquiry*\n\n` +
+                `*Name:* ${name}\n` +
+                `*Phone:* ${phone}\n` +
+                `*Email:* ${email}\n` +
+                `*Message:* ${message}`;
+            
+            const encodedMessage = encodeURIComponent(whatsappMessage);
+            const whatsappURL = `https://wa.me/94754552963?text=${encodedMessage}`;
+            
+            window.open(whatsappURL, '_blank');
+            
+            this.reset();
         });
     }
 }
