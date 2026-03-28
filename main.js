@@ -1,7 +1,9 @@
 let products = [];
+let currentFilter = 'all';
+let currentSearchQuery = '';
 
 const CONFIG = {
-    SHEET_ID: '1suwLcLGU4W5oonN_5Mt4h6HHOzCLER7U',
+    SHEET_ID: '1yr2_FNh55z2ryLj8j6NuB5E1aA8dk6acSZXgra6Fzms',
     WHATSAPP_NUMBER: '94754552963',
     COUNTDOWN_END_DATE: '2026-04-01T23:59:59',
     SHOP_START_YEAR: 2022,
@@ -16,6 +18,9 @@ const CONFIG = {
     SHOW_BADGE: true,
     SHOW_ADD_TO_CART: false,
     GLOBAL_DISCOUNT: 0,
+    CACHE_TTL: 5 * 60 * 1000,
+    CACHE_KEY: 'mrnilatex_products',
+    CACHE_TIME_KEY: 'mrnilatex_products_time',
     PRICE_COLORS: {
         DEFAULT: '#111111',
         OLD_PRICE: '#888888',
@@ -139,51 +144,173 @@ function convertGoogleDriveLink(url) {
     return url;
 }
 
+function isValidUrl(string) {
+    if (!string) return false;
+    try {
+        const url = new URL(string);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch (_) {
+        return false;
+    }
+}
+
+function getCachedProducts() {
+    try {
+        const cached = localStorage.getItem(CONFIG.CACHE_KEY);
+        const cacheTime = localStorage.getItem(CONFIG.CACHE_TIME_KEY);
+        
+        if (cached && cacheTime) {
+            const now = Date.now();
+            const age = now - parseInt(cacheTime);
+            
+            if (age < CONFIG.CACHE_TTL) {
+                console.log('Using cached products (age: ' + Math.round(age/1000) + 's)');
+                return JSON.parse(cached);
+            }
+        }
+    } catch (e) {
+        console.warn('Cache read failed:', e);
+    }
+    return null;
+}
+
+function setCachedProducts(productsData) {
+    try {
+        localStorage.setItem(CONFIG.CACHE_KEY, JSON.stringify(productsData));
+        localStorage.setItem(CONFIG.CACHE_TIME_KEY, Date.now().toString());
+        console.log('Products cached successfully');
+    } catch (e) {
+        console.warn('Cache write failed:', e);
+    }
+}
+
+function clearProductsCache() {
+    try {
+        localStorage.removeItem(CONFIG.CACHE_KEY);
+        localStorage.removeItem(CONFIG.CACHE_TIME_KEY);
+        console.log('Cache cleared');
+    } catch (e) {
+        console.warn('Cache clear failed:', e);
+    }
+}
+
+function validateProduct(item, index) {
+    const errors = [];
+    
+    if (!item['Product Name'] && !item.Name && !item.name) {
+        errors.push('Missing product name');
+    }
+    
+    const price = parseFloat(item.Price || item.price || 0);
+    if (!price || price <= 0) {
+        errors.push('Invalid or missing price');
+    }
+    
+    const imageUrl = item['Image URL'] || item.Image || item.image;
+    if (!imageUrl || !isValidUrl(imageUrl)) {
+        errors.push('Invalid image URL');
+    }
+    
+    return {
+        isValid: errors.length === 0,
+        errors: errors
+    };
+}
+
 async function loadProductsFromExcel() {
+    const cachedProducts = getCachedProducts();
+    if (cachedProducts) {
+        products = cachedProducts;
+        return true;
+    }
+    
     try {
         const csvUrl = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Sheet1`;
         
         const response = await fetch(csvUrl);
-        if (!response.ok) throw new Error('File not found');
+        if (!response.ok) throw new Error('Network response was not ok');
         
         const csvText = await response.text();
+        
+        if (!csvText || csvText.trim() === '') {
+            throw new Error('Empty response from sheet');
+        }
+        
         const rows = Papa.parse(csvText).data;
         
-        if (rows.length < 2) throw new Error('No data found');
+        if (rows.length < 2) throw new Error('No data found in sheet');
         
         const headers = rows[0].map(h => (h || '').trim());
         
-        products = rows.slice(1).filter(row => row.length > 1 && row[0]).map((row, index) => {
+        const rawProducts = rows.slice(1).filter(row => row.length > 1 && row[0]);
+        
+        const validatedProducts = [];
+        
+        rawProducts.forEach((row, index) => {
             const item = {};
             headers.forEach((header, i) => {
                 item[header] = (row[i] || '').trim();
             });
             
+            const validation = validateProduct(item, index);
+            if (!validation.isValid) {
+                console.warn(`Product ${index + 1} skipped:`, validation.errors.join(', '));
+                return;
+            }
+            
             const price = parseFloat(item.Price || item.price || 0);
-            const oldPrice = parseFloat(item.OldPrice || item.oldPrice || 0) || null;
-            const sheetDiscount = parseFloat(item.Discount || item.discount || 0);
+            const oldPrice = parseFloat(item['Old Price'] || item.OldPrice || item.oldPrice || 0) || null;
+            const sheetDiscount = parseFloat(item['Discount %'] || item.Discount || item.discount || 0);
             const calculatedDiscount = oldPrice ? Math.round((1 - price / oldPrice) * 100) : 0;
             
-            return {
+            const imageUrl = item['Image URL'] || item.Image || item.image;
+            const backImageUrl = item['Back Image URL'] || item['Back Image'] || item.BackImage || item.backImage || item.Image || item.image;
+            
+            validatedProducts.push({
                 id: index + 1,
-                name: item.Name || item.name || item.Product || '',
+                originalIndex: index,
+                name: item['Product Name'] || item.Name || item.name || item.Product || '',
                 category: (item.Category || item.category || 'general').toLowerCase(),
                 price: price,
                 oldPrice: oldPrice,
                 discount: sheetDiscount > 0 ? sheetDiscount : calculatedDiscount,
-                image: convertGoogleDriveLink(item.Image || item.image || CONFIG.PLACEHOLDER_IMAGE),
-                backImage: convertGoogleDriveLink(item['Back Image'] || item.backImage || item.Image || item.image || CONFIG.PLACEHOLDER_IMAGE),
+                image: isValidUrl(imageUrl) ? convertGoogleDriveLink(imageUrl) : CONFIG.PLACEHOLDER_IMAGE,
+                backImage: isValidUrl(backImageUrl) ? convertGoogleDriveLink(backImageUrl) : CONFIG.PLACEHOLDER_IMAGE,
                 badge: item.Badge || item.badge || '',
                 description: item.Description || item.description || '',
                 brand: item.Brand || item.brand || '',
-                itemCode: item.ItemCode || item.itemCode || item.Code || item.code || ''
-            };
+                itemCode: item['Item Code'] || item.ItemCode || item.itemCode || item.Code || item.code || '',
+                timestamp: item.Timestamp || item.timestamp || ''
+            });
         });
+        
+        products = validatedProducts;
+        
+        products.sort((a, b) => {
+            if (!a.timestamp && !b.timestamp) return b.originalIndex - a.originalIndex;
+            if (!a.timestamp) return 1;
+            if (!b.timestamp) return -1;
+            const dateDiff = new Date(b.timestamp) - new Date(a.timestamp);
+            if (dateDiff !== 0) return dateDiff;
+            return b.originalIndex - a.originalIndex;
+        });
+        
+        products.forEach((p, i) => p.id = i + 1);
+        
+        setCachedProducts(products);
         
         console.log('Products loaded from Google Sheets:', products.length);
         return true;
     } catch (error) {
-        console.log('Google Sheets unavailable - no products displayed');
+        console.error('Error loading products:', error.message);
+        
+        const cachedFallback = getCachedProducts();
+        if (cachedFallback) {
+            console.log('Using expired cache as fallback');
+            products = cachedFallback;
+            return true;
+        }
+        
         products = [];
         return false;
     }
@@ -339,54 +466,148 @@ function initNavbar() {
 }
 
 function initSearch() {
-    const searchBtn = document.getElementById('searchBtn');
     const searchOverlay = document.getElementById('searchOverlay');
     const searchClose = document.getElementById('searchClose');
     const searchInput = document.getElementById('searchInput');
+    const navbarSearchInput = document.getElementById('navbarSearchInput');
+    const navbarSearchBtn = document.getElementById('navbarSearchBtn');
+    const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+
+    function openSearchOverlay() {
+        if (searchOverlay) {
+            searchOverlay.classList.add('active');
+            if (searchInput) setTimeout(() => searchInput.focus(), 100);
+        }
+    }
+
+    function handleSearchInput(value) {
+        currentSearchQuery = value.toLowerCase().trim();
+        if (navbarSearchInput) navbarSearchInput.value = value;
+        if (searchInput) searchInput.value = value;
+        renderProducts(currentFilter);
+    }
+
+    if (mobileSearchBtn) {
+        mobileSearchBtn.addEventListener('click', openSearchOverlay);
+    }
+
+    if (navbarSearchBtn) {
+        navbarSearchBtn.addEventListener('click', () => {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                openSearchOverlay();
+            } else {
+                navbarSearchInput.focus();
+            }
+        });
+    }
+
+    if (navbarSearchInput) {
+        navbarSearchInput.addEventListener('input', (e) => {
+            handleSearchInput(e.target.value);
+        });
+
+        navbarSearchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                navbarSearchInput.blur();
+            }
+        });
+    }
+
+    if (searchClose) {
+        searchClose.addEventListener('click', closeSearchOverlay);
+    }
+
+    if (searchOverlay) {
+        searchOverlay.addEventListener('click', (e) => {
+            if (e.target === searchOverlay) {
+                closeSearchOverlay();
+            }
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            handleSearchInput(e.target.value);
+        });
+
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                searchInput.blur();
+                closeSearchOverlay();
+            }
+        });
+    }
+}
+
+function closeSearchOverlay() {
+    const searchOverlay = document.getElementById('searchOverlay');
+    const searchInput = document.getElementById('searchInput');
+    const navbarSearchInput = document.getElementById('navbarSearchInput');
     
-    if (!searchBtn || !searchOverlay || !searchClose || !searchInput) return;
+    if (searchOverlay) searchOverlay.classList.remove('active');
+    if (searchInput) searchInput.value = '';
+    if (navbarSearchInput) navbarSearchInput.value = '';
+    currentSearchQuery = '';
+    renderProducts(currentFilter);
+}
 
-    searchBtn.addEventListener('click', () => {
-        searchOverlay.classList.add('active');
-        setTimeout(() => searchInput.focus(), 300);
-    });
-
-    searchClose.addEventListener('click', () => {
-        searchOverlay.classList.remove('active');
-        searchInput.value = '';
-    });
-
-    searchOverlay.addEventListener('click', (e) => {
-        if (e.target === searchOverlay) {
-            searchOverlay.classList.remove('active');
-        }
-    });
-
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        if (query.length > 0) {
-            renderProducts('all');
-            document.querySelectorAll('.product-card').forEach(card => {
-                const title = card.querySelector('.product-title').textContent.toLowerCase();
-                if (title.includes(query)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        } else {
-            renderProducts('all');
-        }
-    });
+function clearAllSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const navbarSearchInput = document.getElementById('navbarSearchInput');
+    const searchOverlay = document.getElementById('searchOverlay');
+    
+    currentSearchQuery = '';
+    
+    if (searchInput) searchInput.value = '';
+    if (navbarSearchInput) navbarSearchInput.value = '';
+    if (searchOverlay) searchOverlay.classList.remove('active');
+    
+    renderProducts(currentFilter);
 }
 
 function renderProducts(filter) {
+    currentFilter = filter;
     const grid = document.getElementById('productsGrid');
     grid.innerHTML = '';
 
-    const filteredProducts = filter === 'all' 
+    let filteredProducts = filter === 'all' 
         ? products 
         : products.filter(p => p.category === filter);
+
+    if (currentSearchQuery.length > 0) {
+        filteredProducts = filteredProducts.filter(p => {
+            const searchText = [
+                p.name,
+                p.category,
+                p.brand || '',
+                p.itemCode || '',
+                p.description || ''
+            ].join(' ').toLowerCase();
+            return searchText.includes(currentSearchQuery);
+        });
+    }
+
+    if (filteredProducts.length === 0) {
+        grid.innerHTML = `
+            <div class="no-results">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <h3>No products found</h3>
+                <p>Try different keywords or clear filters</p>
+                <button class="btn-clear-search" onclick="clearFiltersAndSearch()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Clear Search
+                </button>
+            </div>
+        `;
+        return;
+    }
 
     filteredProducts.forEach((product, index) => {
         const card = document.createElement('div');
@@ -407,12 +628,14 @@ function renderProducts(filter) {
         const showOldPrice = hasGlobalDiscount ? (originalPrice !== displayPrice) : (product.oldPrice && product.oldPrice !== product.price);
         const priceStyles = getPriceStyles(effectiveDiscount);
         
+        const placeholder = CONFIG.PLACEHOLDER_IMAGE;
+        
         card.innerHTML = `
             <div class="product-image">
                 <div class="product-badges">${badgeHTML}</div>
                 <div class="image-flip">
-                    <img src="${product.image}" alt="${product.name}" class="image-front" loading="lazy">
-                    <img src="${product.backImage}" alt="${product.name} back" class="image-back" loading="lazy">
+                    <img src="${product.image}" alt="${product.name}" class="image-front" loading="lazy" onerror="this.src='${placeholder}'; this.onerror=null;">
+                    <img src="${product.backImage}" alt="${product.name} back" class="image-back" loading="lazy" onerror="this.src='${product.image}'; this.onerror=null;">
                 </div>
             </div>
             <div class="product-info">
@@ -464,6 +687,26 @@ function initFilters() {
             renderProducts(filter);
         });
     });
+}
+
+function clearFiltersAndSearch() {
+    currentSearchQuery = '';
+    currentFilter = 'all';
+    
+    const searchInput = document.getElementById('searchInput');
+    const navbarSearchInput = document.getElementById('navbarSearchInput');
+    const searchOverlay = document.getElementById('searchOverlay');
+    
+    if (searchInput) searchInput.value = '';
+    if (navbarSearchInput) navbarSearchInput.value = '';
+    if (searchOverlay) searchOverlay.classList.remove('active');
+    
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(b => b.classList.remove('active'));
+    const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
+    if (allBtn) allBtn.classList.add('active');
+    
+    renderProducts('all');
 }
 
 function initHeroSlider() {
