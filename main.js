@@ -2,16 +2,49 @@ let products = [];
 let currentFilter = 'all';
 let currentSearchQuery = '';
 
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function isValidPhone(phone) {
+    const phoneRegex = /^[\d\s\-\+\(\)]{7,20}$/;
+    return phoneRegex.test(phone);
+}
+
 const CONFIG = {
     SHEET_ID: '1yr2_FNh55z2ryLj8j6NuB5E1aA8dk6acSZXgra6Fzms',
     WHATSAPP_NUMBER: '94754552963',
-    COUNTDOWN_END_DATE: '2026-04-01T23:59:59',
+    COUNTDOWN_END_DATE: '2026-04-30T23:59:59',
+    CURRENT_OFFER: {
+        name: 'Ramadan Special Sale',
+        discount: '30% OFF'
+    },
     SHOP_START_YEAR: 2022,
     SHOP_NAME: 'Mr. Nila Tex',
     SHOP_TAGLINE: 'Premium Clothing & Textiles',
     CURRENCY: 'Rs.',
     CURRENCY_SYMBOL: 'Rs. ',
-    PLACEHOLDER_IMAGE: 'images/products/placeholder.jpg',
+    PLACEHOLDER_IMAGE: 'images/placeholder.svg',
     PRODUCT_CODE_PREFIX: 'MNT',
     EXPERIENCE_SUFFIX: 'Years',
     SHOW_DISCOUNT_PERCENT: true,
@@ -263,6 +296,12 @@ async function loadProductsFromExcel() {
             const sheetDiscount = parseFloat(item['Discount %'] || item.Discount || item.discount || 0);
             const calculatedDiscount = oldPrice ? Math.round((1 - price / oldPrice) * 100) : 0;
             
+            let finalDiscount = oldPrice ? calculatedDiscount : (sheetDiscount > 0 ? sheetDiscount : 0);
+            if (oldPrice && sheetDiscount > 0 && calculatedDiscount !== sheetDiscount) {
+                const productName = item['Product Name'] || item.Name || item.Product || 'Unknown';
+                console.warn(`Product '${productName}': Discount in sheet (${sheetDiscount}%) doesn't match calculation based on ${CONFIG.CURRENCY}${formatPrice(price)} vs ${CONFIG.CURRENCY}${formatPrice(oldPrice)}. Updated to ${calculatedDiscount}%.`);
+            }
+            
             const imageUrl = item['Image URL'] || item.Image || item.image;
             const backImageUrl = item['Back Image URL'] || item['Back Image'] || item.BackImage || item.backImage || item.Image || item.image;
             
@@ -273,7 +312,7 @@ async function loadProductsFromExcel() {
                 category: (item.Category || item.category || 'general').toLowerCase(),
                 price: price,
                 oldPrice: oldPrice,
-                discount: sheetDiscount > 0 ? sheetDiscount : calculatedDiscount,
+                discount: finalDiscount,
                 image: isValidUrl(imageUrl) ? convertGoogleDriveLink(imageUrl) : CONFIG.PLACEHOLDER_IMAGE,
                 backImage: isValidUrl(backImageUrl) ? convertGoogleDriveLink(backImageUrl) : CONFIG.PLACEHOLDER_IMAGE,
                 badge: item.Badge || item.badge || '',
@@ -501,8 +540,9 @@ function initSearch() {
     }
 
     if (navbarSearchInput) {
+        const debouncedSearch = debounce((value) => handleSearchInput(value), 300);
         navbarSearchInput.addEventListener('input', (e) => {
-            handleSearchInput(e.target.value);
+            debouncedSearch(e.target.value);
         });
 
         navbarSearchInput.addEventListener('keydown', (e) => {
@@ -525,8 +565,9 @@ function initSearch() {
     }
 
     if (searchInput) {
+        const debouncedSearch = debounce((value) => handleSearchInput(value), 300);
         searchInput.addEventListener('input', (e) => {
-            handleSearchInput(e.target.value);
+            debouncedSearch(e.target.value);
         });
 
         searchInput.addEventListener('keydown', (e) => {
@@ -615,7 +656,7 @@ function renderProducts(filter) {
         let badgeHTML = '';
         if (product.badge) {
             const badgeStyle = getBadgeStyle(product.badge, product.category, index);
-            badgeHTML = `<span class="badge" ${badgeStyle}>${product.badge}</span>`;
+            badgeHTML = `<span class="badge" ${badgeStyle}>${escapeHtml(product.badge)}</span>`;
         }
 
         const categoryName = formatCategoryName(product.category);
@@ -625,20 +666,19 @@ function renderProducts(filter) {
         const originalPrice = product.oldPrice || product.price;
         const showOldPrice = hasGlobalDiscount ? (originalPrice !== displayPrice) : (product.oldPrice && product.oldPrice !== product.price);
         const priceStyles = getPriceStyles(effectiveDiscount);
-        
         const placeholder = CONFIG.PLACEHOLDER_IMAGE;
-        
+
         card.innerHTML = `
             <div class="product-image">
                 <div class="product-badges">${badgeHTML}</div>
                 <div class="image-flip">
-                    <img src="${product.image}" alt="${product.name}" class="image-front" loading="lazy" onerror="this.src='${placeholder}'; this.onerror=null;">
-                    <img src="${product.backImage}" alt="${product.name} back" class="image-back" loading="lazy" onerror="this.src='${product.image}'; this.onerror=null;">
+                    <img src="${product.image}" alt="${escapeHtml(product.name)}" class="image-front" loading="lazy" onerror="this.src='${placeholder}'; this.onerror=null;">
+                    <img src="${product.backImage}" alt="${escapeHtml(product.name)} back" class="image-back" loading="lazy" onerror="this.src='${product.image}'; this.onerror=null;">
                 </div>
             </div>
             <div class="product-info">
-                <span class="product-category">${categoryName}${product.brand ? ` <i class="fas fa-tag brand-tag"></i> <span class="brand-name">${product.brand}</span>` : ''}</span>
-                <h3 class="product-title">${product.name}</h3>
+                <span class="product-category">${escapeHtml(categoryName)}${product.brand ? ` <i class="fas fa-tag brand-tag"></i> <span class="brand-name">${escapeHtml(product.brand)}</span>` : ''}</span>
+                <h3 class="product-title">${escapeHtml(product.name)}</h3>
                 <div class="product-price-box">
                     <span class="price-current" style="color:${priceStyles.priceColor}">${CONFIG.CURRENCY_SYMBOL}${formatPrice(displayPrice)}</span>
                     ${showOldPrice ? `<span class="price-old" style="color:${priceStyles.oldPriceColor}">${CONFIG.CURRENCY_SYMBOL}${formatPrice(originalPrice)}</span>` : ''}
@@ -666,7 +706,7 @@ function renderProducts(filter) {
                 const originalPrice = product.oldPrice || product.price;
                 const showOldPrice = hasGlobalDiscount ? (originalPrice !== displayPrice) : (product.oldPrice && product.oldPrice !== product.price);
                 const discountText = hasGlobalDiscount ? `*Global OFFER:* ${effectiveDiscount}% OFF` : `*Was:* ${CONFIG.CURRENCY_SYMBOL}${formatPrice(originalPrice)} (${effectiveDiscount}% OFF)`;
-                const message = `✨ *${CONFIG.SHOP_NAME.toUpperCase()}* ✨\n\n━━━━━━━━━━━━━━━━━━\n🛍️ *Product:* ${product.name}\n📂 *Category:* ${category}${product.brand ? `\n🏷️ *Brand:* ${product.brand}` : ''}\n💰 *Price:* ${CONFIG.CURRENCY_SYMBOL}${formatPrice(displayPrice)}${showOldPrice ? `\n📉 ${discountText}` : ''}\n📦 *Code:* ${product.itemCode || `${CONFIG.PRODUCT_CODE_PREFIX}-${String(product.id).padStart(4, '0')}`}\n━━━━━━━━━━━━━━━━━━\n\nHello! I'm interested in this product. Please share more details. 👋`;
+                const message = `✨ *${CONFIG.SHOP_NAME.toUpperCase()}* ✨\n\n━━━━━━━━━━━━━━━━━━\n🛍️ *Product:* ${escapeHtml(product.name)}\n📂 *Category:* ${escapeHtml(category)}${product.brand ? `\n🏷️ *Brand:* ${escapeHtml(product.brand)}` : ''}\n💰 *Price:* ${CONFIG.CURRENCY_SYMBOL}${formatPrice(displayPrice)}${showOldPrice ? `\n📉 ${discountText}` : ''}\n📦 *Code:* ${escapeHtml(product.itemCode) || `${CONFIG.PRODUCT_CODE_PREFIX}-${String(product.id).padStart(4, '0')}`}\n━━━━━━━━━━━━━━━━━━\n\nHello! I'm interested in this product. Please share more details. 👋`;
                 const whatsappUrl = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
                 window.open(whatsappUrl, '_blank');
             }
@@ -802,11 +842,54 @@ function initTestimonials() {
     });
 }
 
+function showOfferEndedMessage() {
+    const offer = CONFIG.CURRENT_OFFER;
+    const offersContent = document.querySelector('.offers-content');
+    const countdown = document.getElementById('countdown');
+    
+    if (countdown) countdown.style.display = 'none';
+    
+    offersContent.innerHTML = `
+        <div class="offer-ended" data-aos="fade-up">
+            <div class="offer-ended-badge">
+                <i class="fas fa-bell"></i>
+                <span>Offer Ended</span>
+            </div>
+            <h2 class="offer-ended-title">${escapeHtml(offer.name)} Has Ended!</h2>
+            <p class="offer-ended-subtitle">
+                Special <span class="highlight">${escapeHtml(offer.discount)}</span> offer has concluded.<br>
+                Stay here for new deals.
+            </p>
+            <div class="offer-ended-buttons">
+                <a href="#contact" class="btn btn-primary">
+                    <span>Contact Us</span>
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <a href="collections.html" class="btn btn-outline">
+                    <span>View Products</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    `;
+    
+    AOS.refresh();
+}
+
 function initCountdown() {
     const countdown = document.getElementById('countdown');
+    
     if (!countdown) return;
     
-    let countdownDate = new Date(CONFIG.COUNTDOWN_END_DATE).getTime();
+    const countdownDateObj = new Date(CONFIG.COUNTDOWN_END_DATE);
+    
+    if (isNaN(countdownDateObj.getTime())) {
+        console.warn(`Mr. Nila Tex: Invalid COUNTDOWN_END_DATE "${CONFIG.COUNTDOWN_END_DATE}". Valid format: YYYY-MM-DDTHH:mm:ss. Showing offer as ended.`);
+        showOfferEndedMessage();
+        return;
+    }
+    
+    let countdownDate = countdownDateObj.getTime();
     let intervalId = null;
 
     function update() {
@@ -814,12 +897,8 @@ function initCountdown() {
         const distance = countdownDate - now;
 
         if (distance <= 0) {
-            document.getElementById('days').textContent = '00';
-            document.getElementById('hours').textContent = '00';
-            document.getElementById('minutes').textContent = '00';
-            document.getElementById('seconds').textContent = '00';
-            countdown.querySelector('.offers-subtitle').innerHTML = 'Offer Ended!<br>Check back for new deals.';
             if (intervalId) clearInterval(intervalId);
+            showOfferEndedMessage();
             return;
         }
 
@@ -865,11 +944,23 @@ function initForms() {
                 return;
             }
             
+            if (!isValidEmail(email)) {
+                alert('Please enter a valid email address');
+                emailEl.focus();
+                return;
+            }
+            
+            if (!isValidPhone(phone)) {
+                alert('Please enter a valid phone number');
+                phoneEl.focus();
+                return;
+            }
+            
             const whatsappMessage = `*Mr. Nila Tex - New Inquiry*\n\n` +
-                `*Name:* ${name}\n` +
-                `*Phone:* ${phone}\n` +
-                `*Email:* ${email}\n` +
-                `*Message:* ${message}`;
+                `*Name:* ${escapeHtml(name)}\n` +
+                `*Phone:* ${escapeHtml(phone)}\n` +
+                `*Email:* ${escapeHtml(email)}\n` +
+                `*Message:* ${escapeHtml(message)}`;
             
             const encodedMessage = encodeURIComponent(whatsappMessage);
             const whatsappURL = `https://wa.me/94754552963?text=${encodedMessage}`;

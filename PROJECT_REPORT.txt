@@ -1,0 +1,401 @@
+================================================================================
+                      PROJECT REPORT: MR. NILA TEX WEBSITE
+                           Updated: March 29, 2026
+================================================================================
+
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+Mr. Nila Tex is a premium clothing and textile showroom website based in 
+Addalaichenai, Sri Lanka. The website showcases products for men, women, 
+kids, and offers quality fabrics and textiles. Features include product 
+browsing, category filtering, search functionality, and direct WhatsApp 
+ordering.
+
+Website URL: https://mr-nilatex.netlify.app
+
+2. WEBSITE STRUCTURE
+--------------------------------------------------------------------------------
+Pages:
+- index.html (Home Page)
+  - Hero section with slider
+  - Features bar
+  - Categories section
+  - Products showcase (featured products)
+  - Offers/Ramadan sale section with countdown timer
+  - About section
+  - Testimonials
+  - Contact section with form & map
+  - Footer
+
+- collections.html (Collections Page)
+  - Page header with breadcrumb
+  - Products showcase with Load More pagination
+  - Category filters
+  - Search functionality
+  - WhatsApp ordering per product
+  - Full product grid display
+
+3. TECHNOLOGIES USED
+--------------------------------------------------------------------------------
+Frontend:
+- HTML5 - Semantic markup
+- CSS3 - Styling with CSS Variables, Grid, Flexbox, Animations
+- JavaScript (ES6+) - Interactive functionality
+- Font Awesome 6.5.1 - Icon library
+- Google Fonts - Playfair Display & Poppins
+- AOS Animation Library 2.3.1 - Scroll animations
+
+Data & Backend:
+- Google Sheets - Product data storage (CSV export)
+- PapaParse 5.4.1 - CSV parsing
+- LocalStorage - Client-side caching (5 minutes TTL)
+
+External Services:
+- Google Maps Embed API - Location display
+- Netlify - Website hosting
+- WhatsApp API - Direct messaging for orders
+
+4. KEY FEATURES
+--------------------------------------------------------------------------------
+Product Management:
+- Products stored in Google Sheets
+- Automatic loading with CSV export
+- Client-side caching for performance
+- Sorting by newest (timestamp)
+- XSS protection for all user-generated content
+
+Product Display:
+- Image flip effect on hover
+- Lazy loading images
+- Placeholder image for broken images
+- Category badges with dynamic colors
+- Price display with discount calculation
+- WhatsApp order button per product
+
+Filtering & Search:
+- Category filters (All, Men, Women, Kids, Fabric, etc.)
+- Real-time search with debounce (300ms)
+- Clear filters & search functionality
+
+Countdown Timer:
+- Validates date format before display
+- Shows "Offer Ended" message when expired
+- Displays offer name from CONFIG
+- Fallback for invalid dates
+
+Collections Page:
+- Load More pagination (100 products per load)
+- Button hidden when all products shown
+- Smooth loading animation
+
+Navigation:
+- Fixed transparent navbar (becomes white on scroll)
+- Mobile responsive hamburger menu
+- Search overlay
+- WhatsApp floating button
+- Back to top button
+
+5. FILE STRUCTURE
+--------------------------------------------------------------------------------
+Root Directory:
+- index.html              - Main home page
+- collections.html       - Collections page with pagination
+- main.js               - Main JavaScript file
+- styles.css            - Main stylesheet (4500+ lines)
+- favicon.svg           - Website favicon
+- sitemap.xml           - XML sitemap
+- robots.txt            - Search engine robots rules
+- netlify.toml          - Netlify deployment config
+- SPEC.md               - Project specifications
+- README.md             - Project readme
+- PROJECT_REPORT.txt    - This report
+
+Images:
+- images/products/       - Product images
+- images/sections/       - Section/banner images
+- images/placeholder.svg - Image placeholder
+
+6. CONFIGURATION
+--------------------------------------------------------------------------------
+Google Sheets Integration:
+- Sheet ID: 1yr2_FNh55z2ryLj8j6NuB5E1aA8dk6acSZXgra6Fzms
+- Cache Duration: 5 minutes
+- Expected columns: Product Name, Category, Price, Old Price, Discount %, 
+  Image URL, Back Image URL, Badge, Description, Brand, Item Code, Timestamp
+
+Countdown Configuration:
+- COUNTDOWN_END_DATE: '2026-04-30T23:59:59'
+- CURRENT_OFFER: { name: 'Ramadan Special Sale', discount: '30% OFF' }
+- Validates date format; shows offer-ended message if invalid
+
+Product Categories:
+- men, women, kids, fabric, textiles, etc. (dynamically from sheet)
+
+Pagination Settings:
+- Collections page: 100 products per load
+- Load More button shows only when >100 products
+
+7. DISCOUNT SYSTEM LOGIC
+--------------------------------------------------------------------------------
+The discount system uses a priority-based approach:
+
+Priority Order:
+1. GLOBAL_DISCOUNT (from CONFIG) - Applied to ALL products if set > 0
+2. Calculated Discount - Calculated from Old Price + Price when Old Price exists
+3. Sheet Discount - Value from 'Discount %' column (used only if no Old Price)
+4. No Discount - Default when neither is provided
+
+Discount Calculation Formula:
+    calculatedDiscount = (1 - Price / OldPrice) × 100
+
+Badge Colors by Discount Level:
+- SUPER (≥50%): Green (#27ae60)
+- HIGH (≥30%): Red (#e74c3c)
+- MEDIUM (≥15%): Orange (#e67e22)
+- Default (<15%): Gold (#c9a959)
+
+8. SECURITY IMPLEMENTATIONS
+--------------------------------------------------------------------------------
+XSS Protection:
+- escapeHtml() function for all user-generated content
+- Applied to: product names, brands, badges, item codes, descriptions
+- WhatsApp messages use escaped content
+- Form submissions use escaped user input
+
+Form Validation:
+- Email format validation (regex)
+- Phone number validation (regex)
+- Required field validation
+- Focus on invalid field on error
+
+9. RECENT UPDATES & FIXES
+--------------------------------------------------------------------------------
+March 29, 2026:
+
+Code Quality Fixes:
+- Fixed XSS vulnerability in collections.html WhatsApp message
+- Added XSS protection (escapeHtml) for all dynamic content
+- Removed unused variables in initCountdown() function
+- Added debounce (300ms) to search inputs for performance
+- Enhanced form validation with email/phone format checks
+- Added invalid date validation for countdown timer
+
+New Features:
+- Placeholder SVG image for broken product images
+- "Offer Ended" message with offer name from CONFIG
+- Invalid date fallback with console warning
+- Countdown validation prevents broken UI
+
+Structure Improvements:
+- collections.html with Load More pagination
+- Dynamic filter generation from product categories
+- Load More button states (Loading, All Loaded, Load More)
+
+CSS Improvements:
+- Consolidated duplicate CSS rules
+- Added styles for offer-ended message
+- Improved responsive breakpoints
+
+10. KNOWN ISSUES / TODOs
+--------------------------------------------------------------------------------
+- CSS has multiple @media blocks at same breakpoint (organization, not bug)
+- Some unused CSS classes remain (minimal impact)
+- Products load from Google Sheets (requires internet)
+
+11. DEPLOYMENT
+--------------------------------------------------------------------------------
+Platform: Netlify
+Build Command: (static site)
+Publish Directory: ./
+
+To deploy:
+1. Push changes to GitHub
+2. Connect repository to Netlify
+3. Netlify automatically deploys on push
+
+================================================================================
+                              END OF REPORT
+================================================================================
+
+================================================================================
+                    APPENDIX A: DESIGN SPECIFICATIONS (SPEC.md)
+================================================================================
+
+## 12. DESIGN SPECIFICATIONS
+
+### 12.1 Concept & Vision
+Mr. Nila Tex is a distinguished clothing and textile establishment in Addalaichenai, 
+Sri Lanka, offering premium fashion for the entire family. The website embodies 
+**luxury without pretension** - a digital flagship store that feels like walking 
+into an upscale boutique with warm Sri Lankan hospitality.
+
+### 12.2 Design Language
+
+#### Aesthetic Direction
+**Elegant Minimalism meets Sri Lankan Warmth** - Clean lines, generous whitespace, 
+and sophisticated photography create a gallery-like experience, while gold accents 
+and subtle textures add warmth and premium feel.
+
+#### Color Palette
+| Color | Hex | Usage |
+|-------|-----|-------|
+| Primary Black | #1a1a1a | Sophisticated, authoritative |
+| Pure White | #ffffff | Clean canvas |
+| Cream | #f8f6f3 | Warm background alternative |
+| Gold Accent | #c9a959 | Premium, luxurious touch |
+| Soft Gold | #e8dcc8 | Subtle highlights |
+| Dark Gray | #4a4a4a | Secondary text |
+| Light Gray | #9a9a9a | Muted text |
+
+#### Typography
+| Element | Font | Style |
+|---------|------|-------|
+| Headlines | Playfair Display (serif) | Elegant, editorial feel |
+| Body & UI | Poppins (sans-serif) | Modern, readable, friendly |
+| Accents | Cormorant Garamond | Special quotes/taglines |
+
+#### Spatial System
+- Base unit: 8px
+- Section padding: 80px-120px vertical
+- Card gaps: 24px
+- Maximum content width: 1400px
+- Mobile padding: 20px
+
+#### Motion Philosophy
+| Animation Type | Duration | Effect |
+|----------------|----------|--------|
+| Entrance animations | 400ms | Fade-up with stagger (ease-out) |
+| Scroll animations | - | Subtle parallax, reveal on intersection |
+| Hover states | 300ms | Scale 1.02-1.05, shadow lift, color transitions |
+| Product cards | 600ms | Image zoom on hover, overlay reveal |
+
+#### Visual Assets
+- Icons: Lucide Icons (line style, 1.5px stroke)
+- Images: Unsplash fashion/textile photography (high-quality, editorial)
+- Decorative: Subtle grain texture overlay, geometric gold accents
+- Backgrounds: Soft gradients, subtle patterns
+
+### 12.3 Layout & Structure
+
+#### Page Architecture
+1. Navigation - Sticky, transparent → solid on scroll
+2. Hero - Full viewport, cinematic imagery, bold typography, dual CTAs
+3. Featured Categories - 4-column grid with hover reveals
+4. New Arrivals - Product cards with quick-view
+5. Trending Collection - Horizontal scroll carousel
+6. Special Offers - Full-width banner with countdown timer
+7. Testimonials - Carousel with customer photos
+8. About Preview - Image + text split, brand story teaser
+9. Full Collection Grid - Filterable category tabs
+10. Contact Section - Map, form, contact cards
+11. Footer - Links, social, newsletter
+
+#### Responsive Breakpoints
+| Device | Width | Layout |
+|--------|-------|--------|
+| Desktop | >1200px | Full layouts, 4-column grids |
+| Tablet | 768px-1200px | 2-column grids, adjusted spacing |
+| Mobile | <480px | Single column, hamburger menu |
+
+### 12.4 Features & Interactions
+
+#### Navigation
+- Transparent on hero, solid white with shadow on scroll
+- Mobile: Hamburger with slide-in drawer
+- Active section highlighting via scroll spy
+- Smooth scroll to sections
+
+#### Hero Section
+- Full-viewport background image with overlay gradient
+- Animated text reveal (word by word)
+- Parallax depth on scroll
+- Slider dots navigation
+
+#### Product Cards
+- Image flip effect on hover (front/back images)
+- "New" / "Hot" tags with color coding
+- Price display with strikethrough for sales
+- WhatsApp order button
+- Badge colors based on discount percentage
+
+#### Countdown Timer
+- Individual digit boxes
+- Labels below each unit (Days, Hours, Minutes, Seconds)
+- Shows "Offer Ended" when expired
+
+#### WhatsApp Button
+- Fixed position bottom-right
+- Pulse animation to draw attention
+- Opens WhatsApp with pre-filled message
+- Hover tooltip: "Chat with us!"
+
+#### Contact Form
+- Floating label inputs
+- Real-time validation (email, phone)
+- Sends via WhatsApp on submit
+
+### 12.5 Component Specifications
+
+#### Navbar
+- Logo (left), nav links (center), search (right)
+- Mobile: hamburger icon → full-screen overlay menu
+- Search overlay on mobile
+
+#### Product Card
+- Image container (aspect-ratio 4:5)
+- Product badges (top-left)
+- Category, title, price box
+- WhatsApp order button
+
+#### Category Card
+- Full background image
+- Gradient overlay (dark bottom)
+- Category tag badge
+- Title on hover reveal
+
+#### Testimonial Card
+- Customer photo (circular, gold border)
+- Star rating (5 stars)
+- Quote text
+- Customer name and location
+
+#### Form Input
+- Floating label design
+- Border animation on focus
+- Error state styling
+
+#### Footer
+- 4-column grid (about, links, categories, contact)
+- Social media icons
+- Copyright bar
+
+### 12.6 Technical Implementation
+
+#### Architecture
+- Single HTML file with semantic sections
+- External CSS file with CSS custom properties
+- Vanilla JavaScript (ES6+) for interactivity
+- No build tools required
+
+#### External Dependencies
+- Google Fonts (Playfair Display, Poppins)
+- Font Awesome 6.5.1
+- AOS Library 2.3.1
+- PapaParse 5.4.1
+
+#### Performance Optimizations
+- Lazy loading images (loading="lazy")
+- CSS animations (GPU-accelerated)
+- Client-side caching (5 min TTL)
+- Debounced search (300ms)
+
+#### SEO Implementation
+- Semantic HTML5 structure
+- Meta tags (title, description, keywords, Open Graph)
+- Schema.org LocalBusiness markup
+- Proper heading hierarchy (H1 → H6)
+- Alt text for all images
+
+================================================================================
+                          END OF SPECIFICATIONS
+================================================================================
