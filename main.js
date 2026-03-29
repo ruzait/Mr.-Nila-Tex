@@ -44,7 +44,6 @@ const CONFIG = {
     SHOP_TAGLINE: 'Premium Clothing & Textiles',
     CURRENCY: 'Rs.',
     CURRENCY_SYMBOL: 'Rs. ',
-    PLACEHOLDER_IMAGE: 'images/placeholder.svg',
     PRODUCT_CODE_PREFIX: 'MNT',
     EXPERIENCE_SUFFIX: 'Years',
     SHOW_DISCOUNT_PERCENT: true,
@@ -313,8 +312,8 @@ async function loadProductsFromExcel() {
                 price: price,
                 oldPrice: oldPrice,
                 discount: finalDiscount,
-                image: isValidUrl(imageUrl) ? convertGoogleDriveLink(imageUrl) : CONFIG.PLACEHOLDER_IMAGE,
-                backImage: isValidUrl(backImageUrl) ? convertGoogleDriveLink(backImageUrl) : CONFIG.PLACEHOLDER_IMAGE,
+                image: isValidUrl(imageUrl) ? convertGoogleDriveLink(imageUrl) : '',
+                backImage: isValidUrl(backImageUrl) ? convertGoogleDriveLink(backImageUrl) : '',
                 badge: item.Badge || item.badge || '',
                 description: item.Description || item.description || '',
                 brand: item.Brand || item.brand || '',
@@ -666,14 +665,12 @@ function renderProducts(filter) {
         const originalPrice = product.oldPrice || product.price;
         const showOldPrice = hasGlobalDiscount ? (originalPrice !== displayPrice) : (product.oldPrice && product.oldPrice !== product.price);
         const priceStyles = getPriceStyles(effectiveDiscount);
-        const placeholder = CONFIG.PLACEHOLDER_IMAGE;
-
         card.innerHTML = `
             <div class="product-image">
                 <div class="product-badges">${badgeHTML}</div>
                 <div class="image-flip">
-                    <img src="${product.image}" alt="${escapeHtml(product.name)}" class="image-front" loading="lazy" onerror="this.src='${placeholder}'; this.onerror=null;">
-                    <img src="${product.backImage}" alt="${escapeHtml(product.name)} back" class="image-back" loading="lazy" onerror="this.src='${product.image}'; this.onerror=null;">
+                    <img src="${product.image}" alt="${escapeHtml(product.name)}" class="image-front" loading="lazy">
+                    <img src="${product.backImage}" alt="${escapeHtml(product.name)} back" class="image-back" loading="lazy">
                 </div>
             </div>
             <div class="product-info">

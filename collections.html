@@ -348,14 +348,12 @@
                 const showOldPrice = hasGlobalDiscount ? (originalPrice !== displayPrice) : (product.oldPrice && product.oldPrice !== product.price);
                 const priceStyles = getPriceStyles(effectiveDiscount);
                 
-                const placeholder = CONFIG.PLACEHOLDER_IMAGE;
-                
                 card.innerHTML = `
                     <div class="product-image">
                         <div class="product-badges">${badgeHTML}</div>
                         <div class="image-flip">
-                            <img src="${product.image}" alt="${collectionsEscapeHtml(product.name)}" class="image-front" loading="lazy" onerror="this.src='${placeholder}'; this.onerror=null;">
-                            <img src="${product.backImage}" alt="${collectionsEscapeHtml(product.name)} back" class="image-back" loading="lazy" onerror="this.src='${product.image}'; this.onerror=null;">
+                            <img src="${product.image}" alt="${collectionsEscapeHtml(product.name)}" class="image-front" loading="lazy">
+                            <img src="${product.backImage}" alt="${collectionsEscapeHtml(product.name)} back" class="image-back" loading="lazy">
                         </div>
                     </div>
                     <div class="product-info">
