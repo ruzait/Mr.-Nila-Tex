@@ -313,7 +313,7 @@ async function loadProductsFromExcel() {
                 oldPrice: oldPrice,
                 discount: finalDiscount,
                 image: isValidUrl(imageUrl) ? convertGoogleDriveLink(imageUrl) : '',
-                backImage: isValidUrl(backImageUrl) ? convertGoogleDriveLink(backImageUrl) : '',
+                backImage: isValidUrl(backImageUrl) ? convertGoogleDriveLink(backImageUrl) : (isValidUrl(imageUrl) ? convertGoogleDriveLink(imageUrl) : ''),
                 badge: item.Badge || item.badge || '',
                 description: item.Description || item.description || '',
                 brand: item.Brand || item.brand || '',
