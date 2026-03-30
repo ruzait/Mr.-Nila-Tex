@@ -8,8 +8,8 @@
 Mr. Nila Tex is a premium clothing and textile showroom website based in 
 Addalaichenai, Sri Lanka. The website showcases products for men, women, 
 kids, and offers quality fabrics and textiles. Features include product 
-browsing, category filtering, search functionality, and direct WhatsApp 
-ordering.
+browsing, category filtering, price range slider, search functionality, 
+and direct WhatsApp ordering.
 
 Website URL: https://mr-nilatex.netlify.app
 
@@ -31,6 +31,7 @@ Pages:
   - Page header with breadcrumb
   - Products showcase with Load More pagination
   - Category filters
+  - Price range slider (dual-handle)
   - Search functionality
   - WhatsApp ordering per product
   - Full product grid display
@@ -80,9 +81,19 @@ Home Page Specific:
 
 Collections Page:
 - Load More pagination (100 products per load)
-- Category filters
+- Category filters (dynamic from product data)
+- Price range slider (dual-handle, draggable)
 - Real-time search
 - Button states: Loading, All Loaded, Load More
+
+Price Range Slider Features:
+- Dual-handle slider for min/max price selection
+- Dynamic price range based on product prices
+- Draggable thumbs with mouse and touch support
+- Price values shown above thumbs on hover
+- Visual gold gradient range indicator
+- Minimum gap enforcement (Rs.100 between min/max)
+- Responsive design for all devices
 
 Navigation:
 - Fixed transparent navbar (becomes white on scroll)
@@ -101,9 +112,9 @@ Countdown Timer:
 --------------------------------------------------------------------------------
 Root Directory:
 - index.html              - Main home page (617 lines)
-- collections.html        - Collections page with pagination (586 lines)
-- main.js               - Main JavaScript file (1093 lines)
-- styles.css            - Main stylesheet (4433+ lines)
+- collections.html        - Collections page with pagination (597 lines)
+- main.js               - Main JavaScript file (1251 lines)
+- styles.css            - Main stylesheet (4739+ lines)
 - favicon.svg           - Website favicon
 - sitemap.xml           - XML sitemap
 - robots.txt            - Search engine robots rules
@@ -184,9 +195,39 @@ Key Features:
 - Lazy loading for performance
 - onerror handler for runtime image errors
 
-10. RECENT UPDATES & FIXES
+10. PRICE RANGE SLIDER
+--------------------------------------------------------------------------------
+Implementation:
+- Custom dual-handle slider (no native range inputs)
+- Pure JavaScript drag implementation
+- Mouse and touch support
+
+Components:
+- Track: Gray background bar
+- Range: Gold gradient highlighted area between thumbs
+- Thumbs: White circles with gold border
+- Thumb values: Black tooltip showing price on hover
+
+Features:
+- Dynamic range calculation from min/max product prices
+- Minimum gap enforcement (Rs.100)
+- Price values appear on thumb hover
+- Visual feedback during drag (active class)
+- Triggers product filter on release
+- Responsive breakpoints for all device sizes
+
+11. RECENT UPDATES & FIXES
 --------------------------------------------------------------------------------
 March 30, 2026:
+
+Price Range Slider:
+- Implemented custom dual-handle slider
+- Added draggable thumbs with mouse/touch support
+- Price values display above thumbs on hover
+- Dynamic price range from product data
+- Responsive CSS for all device sizes
+- Fixed duplicate slider issue
+- Clean design without container box
 
 Home Page Optimization:
 - Limited home page to show only 20 newest products
@@ -195,48 +236,24 @@ Home Page Optimization:
 - Home page now shows "Featured Collections" (20 products) with "View All" CTA
 
 Image Handling Improvements:
-- Added getProductImageHTML() helper function (main.js:168-191)
+- Added getProductImageHTML() helper function (main.js:310-333)
 - Smart flip detection (only enables when both images exist)
 - Automatic placeholder for missing/broken images
 - Added .product-image-single CSS class for single image display
 - Updated all 3 render locations to use new helper
 
-CSS Fixes:
-- Fixed .product-image-single styling for proper image display
+Code Cleanup:
+- Removed unused sliderMin/sliderMax variables
+- Fixed duplicate CSS rules
+- Cleaned up responsive breakpoints
 
-March 29, 2026:
-
-Code Quality Fixes:
-- Fixed XSS vulnerability in collections.html WhatsApp message
-- Added XSS protection (escapeHtml) for all dynamic content
-- Removed unused variables in initCountdown() function
-- Added debounce (300ms) to search inputs for performance
-- Enhanced form validation with email/phone format checks
-- Added invalid date validation for countdown timer
-
-New Features:
-- Placeholder SVG image for broken product images
-- "Offer Ended" message with offer name from CONFIG
-- Invalid date fallback with console warning
-- Countdown validation prevents broken UI
-
-Structure Improvements:
-- collections.html with Load More pagination
-- Dynamic filter generation from product categories
-- Load More button states (Loading, All Loaded, Load More)
-
-CSS Improvements:
-- Consolidated duplicate CSS rules
-- Added styles for offer-ended message
-- Improved responsive breakpoints
-
-11. KNOWN ISSUES / TODOs
+12. KNOWN ISSUES / TODOs
 --------------------------------------------------------------------------------
 - CSS has multiple @media blocks at same breakpoint (organization, not bug)
 - Some unused CSS classes remain (minimal impact)
 - Products load from Google Sheets (requires internet)
 
-12. DEPLOYMENT
+13. DEPLOYMENT
 --------------------------------------------------------------------------------
 Platform: Netlify
 Build Command: (static site)
@@ -255,15 +272,15 @@ To deploy:
                      APPENDIX A: DESIGN SPECIFICATIONS (SPEC.md)
 ================================================================================
 
-## 13. DESIGN SPECIFICATIONS
+## DESIGN SPECIFICATIONS
 
-### 13.1 Concept & Vision
+### Design Concept
 Mr. Nila Tex is a distinguished clothing and textile establishment in Addalaichenai, 
 Sri Lanka, offering premium fashion for the entire family. The website embodies 
 **luxury without pretension** - a digital flagship store that feels like walking 
 into an upscale boutique with warm Sri Lankan hospitality.
 
-### 13.2 Design Language
+### Design Language
 
 #### Aesthetic Direction
 **Elegant Minimalism meets Sri Lankan Warmth** - Clean lines, generous whitespace, 
@@ -286,7 +303,6 @@ and subtle textures add warmth and premium feel.
 |---------|------|-------|
 | Headlines | Playfair Display (serif) | Elegant, editorial feel |
 | Body & UI | Poppins (sans-serif) | Modern, readable, friendly |
-| Accents | Cormorant Garamond | Special quotes/taglines |
 
 #### Spatial System
 - Base unit: 8px
@@ -303,110 +319,14 @@ and subtle textures add warmth and premium feel.
 | Hover states | 300ms | Scale 1.02-1.05, shadow lift, color transitions |
 | Product cards | 600ms | Image zoom on hover, overlay reveal |
 
-#### Visual Assets
-- Icons: Lucide Icons (line style, 1.5px stroke)
-- Images: Unsplash fashion/textile photography (high-quality, editorial)
-- Decorative: Subtle grain texture overlay, geometric gold accents
-- Backgrounds: Soft gradients, subtle patterns
-
-### 13.3 Layout & Structure
-
-#### Page Architecture
-1. Navigation - Sticky, transparent → solid on scroll
-2. Hero - Full viewport, cinematic imagery, bold typography, dual CTAs
-3. Featured Categories - 4-column grid with hover reveals
-4. New Arrivals - Product cards with quick-view (Home page: 20 products only)
-5. Trending Collection - Horizontal scroll carousel
-6. Special Offers - Full-width banner with countdown timer
-7. Testimonials - Carousel with customer photos
-8. About Preview - Image + text split, brand story teaser
-9. Full Collection Grid - Filterable category tabs (Collections page only)
-10. Contact Section - Map, form, contact cards
-11. Footer - Links, social, newsletter
-
-#### Responsive Breakpoints
+### Responsive Breakpoints
 | Device | Width | Layout |
-|--------|-------|-------|
+|--------|-------|--------|
 | Desktop | >1200px | Full layouts, 4-column grids |
 | Tablet | 768px-1200px | 2-column grids, adjusted spacing |
 | Mobile | <480px | Single column, hamburger menu |
 
-### 13.4 Features & Interactions
-
-#### Navigation
-- Transparent on hero, solid white with shadow on scroll
-- Mobile: Hamburger with slide-in drawer
-- Active section highlighting via scroll spy
-- Smooth scroll to sections
-
-#### Hero Section
-- Full-viewport background image with overlay gradient
-- Animated text reveal (word by word)
-- Parallax depth on scroll
-- Slider dots navigation
-
-#### Product Cards
-- Smart image display:
-  * Flip effect on hover (front/back images) when both exist
-  * Single image display when only one image available
-  * Placeholder for missing images
-- "New" / "Hot" tags with color coding
-- Price display with strikethrough for sales
-- WhatsApp order button
-- Badge colors based on discount percentage
-
-#### Countdown Timer
-- Individual digit boxes
-- Labels below each unit (Days, Hours, Minutes, Seconds)
-- Shows "Offer Ended" when expired
-
-#### WhatsApp Button
-- Fixed position bottom-right
-- Pulse animation to draw attention
-- Opens WhatsApp with pre-filled message
-- Hover tooltip: "Chat with us!"
-
-#### Contact Form
-- Floating label inputs
-- Real-time validation (email, phone)
-- Sends via WhatsApp on submit
-
-### 13.5 Component Specifications
-
-#### Navbar
-- Logo (left), nav links (center), search (right)
-- Mobile: hamburger icon → full-screen overlay menu
-- Search overlay on mobile
-
-#### Product Card
-- Image container (aspect-ratio 4:5)
-- Product badges (top-left)
-- Category, title, price box
-- WhatsApp order button
-
-#### Category Card
-- Full background image
-- Gradient overlay (dark bottom)
-- Category tag badge
-- Title on hover reveal
-
-#### Testimonial Card
-- Customer photo (circular, gold border)
-- Star rating (5 stars)
-- Quote text
-- Customer name and location
-
-#### Form Input
-- Floating label design
-- Border animation on focus
-- Error state styling
-
-#### Footer
-- 4-column grid (about, links, categories, contact)
-- Social media icons
-- Copyright bar
-
-### 13.6 Technical Implementation
+### Technical Implementation
 
 #### Architecture
 - Two HTML files (index.html, collections.html)

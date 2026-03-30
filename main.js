@@ -152,6 +152,21 @@ function formatPrice(price) {
     return Math.round(price).toLocaleString();
 }
 
+function getPriceRange() {
+    if (products.length === 0) return { min: 0, max: 10000 };
+    const prices = products.map(p => p.price);
+    return {
+        min: Math.min(...prices),
+        max: Math.max(...prices)
+    };
+}
+
+let currentPriceRange = null;
+let sliderMinValue = 0;
+let sliderMaxValue = 0;
+let sliderRangeMin = 0;
+let sliderRangeMax = 0;
+
 function initDynamicFilters() {
     const categories = [...new Set(products.map(p => p.category))];
     const filterContainer = document.querySelector('.products-filter');
@@ -162,7 +177,132 @@ function initDynamicFilters() {
     });
     filterContainer.innerHTML = html;
     
+    initPriceSlider();
     initFilters();
+}
+
+function initPriceSlider() {
+    const { min, max } = getPriceRange();
+    sliderRangeMin = Math.floor(min);
+    sliderRangeMax = Math.ceil(max);
+    sliderMinValue = sliderRangeMin;
+    sliderMaxValue = sliderRangeMax;
+    
+    const sliderContainer = document.querySelector('.price-slider-container');
+    if (!sliderContainer) return;
+    
+    sliderContainer.innerHTML = `
+        <div class="price-slider-header">
+            <span class="price-slider-label">Price Range</span>
+            <span class="price-slider-values">Rs.${formatPrice(sliderMinValue)} - Rs.${formatPrice(sliderMaxValue)}</span>
+        </div>
+        <div class="price-slider-track">
+            <div class="slider-track"></div>
+            <div class="slider-range"></div>
+            <div class="slider-thumb thumb-min" data-type="min">
+                <span class="thumb-value">Rs.${formatPrice(sliderMinValue)}</span>
+            </div>
+            <div class="slider-thumb thumb-max" data-type="max">
+                <span class="thumb-value">Rs.${formatPrice(sliderMaxValue)}</span>
+            </div>
+        </div>
+    `;
+    
+    setupSliderListeners();
+}
+
+function setupSliderListeners() {
+    const sliderRange = document.querySelector('.slider-range');
+    const thumbMin = document.querySelector('.thumb-min');
+    const thumbMax = document.querySelector('.thumb-max');
+    const priceValues = document.querySelector('.price-slider-values');
+    const sliderTrack = document.querySelector('.price-slider-track');
+    
+    if (!sliderRange || !thumbMin || !thumbMax) return;
+    
+    function getPercent(value) {
+        return ((value - sliderRangeMin) / (sliderRangeMax - sliderRangeMin)) * 100;
+    }
+    
+    function updateSlider() {
+        let minVal = sliderMinValue;
+        let maxVal = sliderMaxValue;
+        
+        const minPercent = getPercent(minVal);
+        const maxPercent = getPercent(maxVal);
+        const rangePercent = maxPercent - minPercent;
+        
+        sliderRange.style.left = `${minPercent}%`;
+        sliderRange.style.width = `${rangePercent}%`;
+        
+        thumbMin.style.left = `${minPercent}%`;
+        thumbMax.style.left = `${maxPercent}%`;
+        
+        const thumbMinValueEl = thumbMin.querySelector('.thumb-value');
+        const thumbMaxValueEl = thumbMax.querySelector('.thumb-value');
+        if (thumbMinValueEl) thumbMinValueEl.textContent = `Rs.${formatPrice(minVal)}`;
+        if (thumbMaxValueEl) thumbMaxValueEl.textContent = `Rs.${formatPrice(maxVal)}`;
+        
+        if (priceValues) {
+            priceValues.textContent = `Rs.${formatPrice(minVal)} - Rs.${formatPrice(maxVal)}`;
+        }
+    }
+    
+    function handleThumbDrag(e) {
+        e.preventDefault();
+        const thumb = e.currentTarget;
+        const type = thumb.dataset.type;
+        const otherThumb = type === 'min' ? thumbMax : thumbMin;
+        
+        thumb.classList.add('active');
+        
+        function onMove(moveEvent) {
+            const rect = sliderTrack.getBoundingClientRect();
+            const clientX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
+            let percent = (clientX - rect.left) / rect.width;
+            percent = Math.max(0, Math.min(100, percent));
+            
+            let value = Math.round(sliderRangeMin + (percent * (sliderRangeMax - sliderRangeMin)));
+            
+            if (type === 'min') {
+                if (value >= sliderMaxValue - 100) {
+                    value = sliderMaxValue - 100;
+                }
+                sliderMinValue = Math.max(sliderRangeMin, value);
+            } else {
+                if (value <= sliderMinValue + 100) {
+                    value = sliderMinValue + 100;
+                }
+                sliderMaxValue = Math.min(sliderRangeMax, value);
+            }
+            
+            updateSlider();
+        }
+        
+        function onEnd() {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onEnd);
+            document.removeEventListener('touchmove', onMove);
+            document.removeEventListener('touchend', onEnd);
+            
+            thumb.classList.remove('active');
+            
+            currentPriceRange = { min: sliderMinValue, max: sliderMaxValue };
+            renderProducts(currentFilter);
+        }
+        
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onEnd);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onEnd);
+    }
+    
+    thumbMin.addEventListener('mousedown', handleThumbDrag);
+    thumbMin.addEventListener('touchstart', handleThumbDrag, { passive: false });
+    thumbMax.addEventListener('mousedown', handleThumbDrag);
+    thumbMax.addEventListener('touchstart', handleThumbDrag, { passive: false });
+    
+    updateSlider();
 }
 
 function getProductImageHTML(product, badgeHTML, escapeFn = escapeHtml) {
@@ -650,6 +790,12 @@ function renderProducts(filter) {
         });
     }
 
+    if (currentPriceRange) {
+        filteredProducts = filteredProducts.filter(p => 
+            p.price >= currentPriceRange.min && p.price <= currentPriceRange.max
+        );
+    }
+
     if (filteredProducts.length === 0) {
         grid.innerHTML = `
             <div class="no-results">
@@ -811,6 +957,7 @@ function initFilters() {
 function clearFiltersAndSearch() {
     currentSearchQuery = '';
     currentFilter = 'all';
+    currentPriceRange = null;
     
     const searchInput = document.getElementById('searchInput');
     const navbarSearchInput = document.getElementById('navbarSearchInput');
@@ -824,6 +971,9 @@ function clearFiltersAndSearch() {
     filterBtns.forEach(b => b.classList.remove('active'));
     const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
     if (allBtn) allBtn.classList.add('active');
+    
+    initPriceSlider();
+    currentPriceRange = null;
     
     renderProducts('all');
 }
