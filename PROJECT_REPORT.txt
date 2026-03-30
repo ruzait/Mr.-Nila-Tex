@@ -1,6 +1,6 @@
 ================================================================================
                       PROJECT REPORT: MR. NILA TEX WEBSITE
-                           Updated: March 29, 2026
+                           Updated: March 30, 2026
 ================================================================================
 
 1. PROJECT OVERVIEW
@@ -20,7 +20,7 @@ Pages:
   - Hero section with slider
   - Features bar
   - Categories section
-  - Products showcase (featured products)
+  - Products showcase (20 newest products only - no filters)
   - Offers/Ramadan sale section with countdown timer
   - About section
   - Testimonials
@@ -65,28 +65,24 @@ Product Management:
 - XSS protection for all user-generated content
 
 Product Display:
-- Image flip effect on hover
+- Smart image handling:
+  * Image flip effect on hover (only when both front & back images exist)
+  * Single image display (no flip) when only one image available
+  * Placeholder SVG for broken/missing images
 - Lazy loading images
-- Placeholder image for broken images
 - Category badges with dynamic colors
 - Price display with discount calculation
 - WhatsApp order button per product
 
-Filtering & Search:
-- Category filters (All, Men, Women, Kids, Fabric, etc.)
-- Real-time search with debounce (300ms)
-- Clear filters & search functionality
-
-Countdown Timer:
-- Validates date format before display
-- Shows "Offer Ended" message when expired
-- Displays offer name from CONFIG
-- Fallback for invalid dates
+Home Page Specific:
+- Shows only 20 newest products (no filters)
+- Clean showcase section with "View All Collections" CTA
 
 Collections Page:
 - Load More pagination (100 products per load)
-- Button hidden when all products shown
-- Smooth loading animation
+- Category filters
+- Real-time search
+- Button states: Loading, All Loaded, Load More
 
 Navigation:
 - Fixed transparent navbar (becomes white on scroll)
@@ -95,13 +91,19 @@ Navigation:
 - WhatsApp floating button
 - Back to top button
 
+Countdown Timer:
+- Validates date format before display
+- Shows "Offer Ended" message when expired
+- Displays offer name from CONFIG
+- Fallback for invalid dates
+
 5. FILE STRUCTURE
 --------------------------------------------------------------------------------
 Root Directory:
-- index.html              - Main home page
-- collections.html       - Collections page with pagination
-- main.js               - Main JavaScript file
-- styles.css            - Main stylesheet (4500+ lines)
+- index.html              - Main home page (617 lines)
+- collections.html        - Collections page with pagination (586 lines)
+- main.js               - Main JavaScript file (1093 lines)
+- styles.css            - Main stylesheet (4433+ lines)
 - favicon.svg           - Website favicon
 - sitemap.xml           - XML sitemap
 - robots.txt            - Search engine robots rules
@@ -132,8 +134,8 @@ Product Categories:
 - men, women, kids, fabric, textiles, etc. (dynamically from sheet)
 
 Pagination Settings:
-- Collections page: 100 products per load
-- Load More button shows only when >100 products
+- Home page: 20 products (newest only, no filters)
+- Collections page: 100 products per load with Load More button
 
 7. DISCOUNT SYSTEM LOGIC
 --------------------------------------------------------------------------------
@@ -168,8 +170,40 @@ Form Validation:
 - Required field validation
 - Focus on invalid field on error
 
-9. RECENT UPDATES & FIXES
+9. IMAGE HANDLING SYSTEM
 --------------------------------------------------------------------------------
+Smart Image Display Logic (getProductImageHTML function):
+
+1. Both images exist & different → Flip effect enabled
+2. Only front image → Single image (no flip effect)
+3. No images or load error → Placeholder SVG
+
+Key Features:
+- Automatic fallback to placeholder on image load failure
+- Consistent aspect ratio (4:5) maintained
+- Lazy loading for performance
+- onerror handler for runtime image errors
+
+10. RECENT UPDATES & FIXES
+--------------------------------------------------------------------------------
+March 30, 2026:
+
+Home Page Optimization:
+- Limited home page to show only 20 newest products
+- Removed filter container from home page
+- Created dedicated renderHomeProducts() function
+- Home page now shows "Featured Collections" (20 products) with "View All" CTA
+
+Image Handling Improvements:
+- Added getProductImageHTML() helper function (main.js:168-191)
+- Smart flip detection (only enables when both images exist)
+- Automatic placeholder for missing/broken images
+- Added .product-image-single CSS class for single image display
+- Updated all 3 render locations to use new helper
+
+CSS Fixes:
+- Fixed .product-image-single styling for proper image display
+
 March 29, 2026:
 
 Code Quality Fixes:
@@ -196,13 +230,13 @@ CSS Improvements:
 - Added styles for offer-ended message
 - Improved responsive breakpoints
 
-10. KNOWN ISSUES / TODOs
+11. KNOWN ISSUES / TODOs
 --------------------------------------------------------------------------------
 - CSS has multiple @media blocks at same breakpoint (organization, not bug)
 - Some unused CSS classes remain (minimal impact)
 - Products load from Google Sheets (requires internet)
 
-11. DEPLOYMENT
+12. DEPLOYMENT
 --------------------------------------------------------------------------------
 Platform: Netlify
 Build Command: (static site)
@@ -218,18 +252,18 @@ To deploy:
 ================================================================================
 
 ================================================================================
-                    APPENDIX A: DESIGN SPECIFICATIONS (SPEC.md)
+                     APPENDIX A: DESIGN SPECIFICATIONS (SPEC.md)
 ================================================================================
 
-## 12. DESIGN SPECIFICATIONS
+## 13. DESIGN SPECIFICATIONS
 
-### 12.1 Concept & Vision
+### 13.1 Concept & Vision
 Mr. Nila Tex is a distinguished clothing and textile establishment in Addalaichenai, 
 Sri Lanka, offering premium fashion for the entire family. The website embodies 
 **luxury without pretension** - a digital flagship store that feels like walking 
 into an upscale boutique with warm Sri Lankan hospitality.
 
-### 12.2 Design Language
+### 13.2 Design Language
 
 #### Aesthetic Direction
 **Elegant Minimalism meets Sri Lankan Warmth** - Clean lines, generous whitespace, 
@@ -275,29 +309,29 @@ and subtle textures add warmth and premium feel.
 - Decorative: Subtle grain texture overlay, geometric gold accents
 - Backgrounds: Soft gradients, subtle patterns
 
-### 12.3 Layout & Structure
+### 13.3 Layout & Structure
 
 #### Page Architecture
 1. Navigation - Sticky, transparent → solid on scroll
 2. Hero - Full viewport, cinematic imagery, bold typography, dual CTAs
 3. Featured Categories - 4-column grid with hover reveals
-4. New Arrivals - Product cards with quick-view
+4. New Arrivals - Product cards with quick-view (Home page: 20 products only)
 5. Trending Collection - Horizontal scroll carousel
 6. Special Offers - Full-width banner with countdown timer
 7. Testimonials - Carousel with customer photos
 8. About Preview - Image + text split, brand story teaser
-9. Full Collection Grid - Filterable category tabs
+9. Full Collection Grid - Filterable category tabs (Collections page only)
 10. Contact Section - Map, form, contact cards
 11. Footer - Links, social, newsletter
 
 #### Responsive Breakpoints
 | Device | Width | Layout |
-|--------|-------|--------|
+|--------|-------|-------|
 | Desktop | >1200px | Full layouts, 4-column grids |
 | Tablet | 768px-1200px | 2-column grids, adjusted spacing |
 | Mobile | <480px | Single column, hamburger menu |
 
-### 12.4 Features & Interactions
+### 13.4 Features & Interactions
 
 #### Navigation
 - Transparent on hero, solid white with shadow on scroll
@@ -312,7 +346,10 @@ and subtle textures add warmth and premium feel.
 - Slider dots navigation
 
 #### Product Cards
-- Image flip effect on hover (front/back images)
+- Smart image display:
+  * Flip effect on hover (front/back images) when both exist
+  * Single image display when only one image available
+  * Placeholder for missing images
 - "New" / "Hot" tags with color coding
 - Price display with strikethrough for sales
 - WhatsApp order button
@@ -334,7 +371,7 @@ and subtle textures add warmth and premium feel.
 - Real-time validation (email, phone)
 - Sends via WhatsApp on submit
 
-### 12.5 Component Specifications
+### 13.5 Component Specifications
 
 #### Navbar
 - Logo (left), nav links (center), search (right)
@@ -369,10 +406,10 @@ and subtle textures add warmth and premium feel.
 - Social media icons
 - Copyright bar
 
-### 12.6 Technical Implementation
+### 13.6 Technical Implementation
 
 #### Architecture
-- Single HTML file with semantic sections
+- Two HTML files (index.html, collections.html)
 - External CSS file with CSS custom properties
 - Vanilla JavaScript (ES6+) for interactivity
 - No build tools required
@@ -388,6 +425,7 @@ and subtle textures add warmth and premium feel.
 - CSS animations (GPU-accelerated)
 - Client-side caching (5 min TTL)
 - Debounced search (300ms)
+- Smart image loading (placeholder for errors)
 
 #### SEO Implementation
 - Semantic HTML5 structure

@@ -165,6 +165,31 @@ function initDynamicFilters() {
     initFilters();
 }
 
+function getProductImageHTML(product, badgeHTML, escapeFn = escapeHtml) {
+    const placeholder = 'images/placeholder.svg';
+    const frontImage = product.image || '';
+    const backImage = product.backImage || '';
+    
+    const hasFlip = frontImage && backImage && frontImage !== backImage;
+    
+    if (hasFlip) {
+        return `
+            <div class="product-image">
+                <div class="product-badges">${badgeHTML}</div>
+                <div class="image-flip">
+                    <img src="${frontImage}" alt="${escapeFn(product.name)}" class="image-front" loading="lazy">
+                    <img src="${backImage}" alt="${escapeFn(product.name)} back" class="image-back" loading="lazy">
+                </div>
+            </div>`;
+    } else {
+        return `
+            <div class="product-image">
+                <div class="product-badges">${badgeHTML}</div>
+                <img src="${frontImage || placeholder}" alt="${escapeFn(product.name)}" class="product-image-single" loading="lazy" onerror="this.src='${placeholder}'">
+            </div>`;
+    }
+}
+
 function convertGoogleDriveLink(url) {
     if (!url || !url.includes('drive.google.com')) {
         return url;
@@ -371,8 +396,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }, 1500);
 
     if (products.length > 0) {
-        initDynamicFilters();
-        renderProducts('all');
+        renderHomeProducts();
     } else {
         const grid = document.getElementById('productsGrid');
         grid.innerHTML = '<p style="text-align:center;padding:40px;">No products available at the moment.</p>';
@@ -665,14 +689,74 @@ function renderProducts(filter) {
         const originalPrice = product.oldPrice || product.price;
         const showOldPrice = hasGlobalDiscount ? (originalPrice !== displayPrice) : (product.oldPrice && product.oldPrice !== product.price);
         const priceStyles = getPriceStyles(effectiveDiscount);
+        const imageHTML = getProductImageHTML(product, badgeHTML);
         card.innerHTML = `
-            <div class="product-image">
-                <div class="product-badges">${badgeHTML}</div>
-                <div class="image-flip">
-                    <img src="${product.image}" alt="${escapeHtml(product.name)}" class="image-front" loading="lazy">
-                    <img src="${product.backImage}" alt="${escapeHtml(product.name)} back" class="image-back" loading="lazy">
+            ${imageHTML}
+            <div class="product-info">
+                <span class="product-category">${escapeHtml(categoryName)}${product.brand ? ` <i class="fas fa-tag brand-tag"></i> <span class="brand-name">${escapeHtml(product.brand)}</span>` : ''}</span>
+                <h3 class="product-title">${escapeHtml(product.name)}</h3>
+                <div class="product-price-box">
+                    <span class="price-current" style="color:${priceStyles.priceColor}">${CONFIG.CURRENCY_SYMBOL}${formatPrice(displayPrice)}</span>
+                    ${showOldPrice ? `<span class="price-old" style="color:${priceStyles.oldPriceColor}">${CONFIG.CURRENCY_SYMBOL}${formatPrice(originalPrice)}</span>` : ''}
+                    ${effectiveDiscount > 0 ? `<span class="discount-tag" style="background:${priceStyles.discountBadgeBg}">-${effectiveDiscount}%</span>` : ''}
                 </div>
+                <button class="product-btn whatsapp-btn" data-id="${product.id}">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>Order via WhatsApp</span>
+                </button>
             </div>
+        `;
+
+        grid.appendChild(card);
+    });
+
+    document.querySelectorAll('.whatsapp-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = parseInt(this.dataset.id);
+            const product = products.find(p => p.id === id);
+            if (product) {
+                const category = formatCategoryName(product.category);
+                const hasGlobalDiscount = CONFIG.GLOBAL_DISCOUNT > 0;
+                const effectiveDiscount = hasGlobalDiscount ? CONFIG.GLOBAL_DISCOUNT : (product.discount || 0);
+                const displayPrice = hasGlobalDiscount ? product.price * (1 - CONFIG.GLOBAL_DISCOUNT / 100) : product.price;
+                const originalPrice = product.oldPrice || product.price;
+                const showOldPrice = hasGlobalDiscount ? (originalPrice !== displayPrice) : (product.oldPrice && product.oldPrice !== product.price);
+                const discountText = hasGlobalDiscount ? `*Global OFFER:* ${effectiveDiscount}% OFF` : `*Was:* ${CONFIG.CURRENCY_SYMBOL}${formatPrice(originalPrice)} (${effectiveDiscount}% OFF)`;
+                const message = `✨ *${CONFIG.SHOP_NAME.toUpperCase()}* ✨\n\n━━━━━━━━━━━━━━━━━━\n🛍️ *Product:* ${escapeHtml(product.name)}\n📂 *Category:* ${escapeHtml(category)}${product.brand ? `\n🏷️ *Brand:* ${escapeHtml(product.brand)}` : ''}\n💰 *Price:* ${CONFIG.CURRENCY_SYMBOL}${formatPrice(displayPrice)}${showOldPrice ? `\n📉 ${discountText}` : ''}\n📦 *Code:* ${escapeHtml(product.itemCode) || `${CONFIG.PRODUCT_CODE_PREFIX}-${String(product.id).padStart(4, '0')}`}\n━━━━━━━━━━━━━━━━━━\n\nHello! I'm interested in this product. Please share more details. 👋`;
+                const whatsappUrl = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            }
+        });
+    });
+}
+
+function renderHomeProducts() {
+    const grid = document.getElementById('productsGrid');
+    grid.innerHTML = '';
+
+    const homeProducts = products.slice(0, 20);
+
+    homeProducts.forEach((product, index) => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.setAttribute('data-category', product.category);
+
+        let badgeHTML = '';
+        if (product.badge) {
+            const badgeStyle = getBadgeStyle(product.badge, product.category, index);
+            badgeHTML = `<span class="badge" ${badgeStyle}>${escapeHtml(product.badge)}</span>`;
+        }
+
+        const categoryName = formatCategoryName(product.category);
+        const hasGlobalDiscount = CONFIG.GLOBAL_DISCOUNT > 0;
+        const effectiveDiscount = hasGlobalDiscount ? CONFIG.GLOBAL_DISCOUNT : (product.discount || 0);
+        const displayPrice = hasGlobalDiscount ? product.price * (1 - CONFIG.GLOBAL_DISCOUNT / 100) : product.price;
+        const originalPrice = product.oldPrice || product.price;
+        const showOldPrice = hasGlobalDiscount ? (originalPrice !== displayPrice) : (product.oldPrice && product.oldPrice !== product.price);
+        const priceStyles = getPriceStyles(effectiveDiscount);
+        const imageHTML = getProductImageHTML(product, badgeHTML);
+        card.innerHTML = `
+            ${imageHTML}
             <div class="product-info">
                 <span class="product-category">${escapeHtml(categoryName)}${product.brand ? ` <i class="fas fa-tag brand-tag"></i> <span class="brand-name">${escapeHtml(product.brand)}</span>` : ''}</span>
                 <h3 class="product-title">${escapeHtml(product.name)}</h3>
