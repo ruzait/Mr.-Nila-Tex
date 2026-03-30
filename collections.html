@@ -162,6 +162,8 @@
         <div class="container">
             <div class="products-filter">
             </div>
+            <div class="price-slider-container">
+            </div>
             <div class="products-grid" id="productsGrid">
             </div>
             <div class="load-more-container" id="loadMoreContainer">
@@ -295,6 +297,12 @@
                 });
             }
 
+            if (currentPriceRange) {
+                filteredProducts = filteredProducts.filter(p => 
+                    p.price >= currentPriceRange.min && p.price <= currentPriceRange.max
+                );
+            }
+
             allFilteredProducts = filteredProducts;
             displayedProducts = Math.min(PRODUCTS_PER_PAGE, filteredProducts.length);
 
@@ -421,6 +429,7 @@
         function clearCollectionsFiltersAndSearch() {
             collectionsSearchQuery = '';
             collectionsCurrentFilter = 'all';
+            currentPriceRange = null;
             
             const searchInput = document.getElementById('searchInput');
             const navbarSearchInput = document.getElementById('navbarSearchInput');
@@ -434,6 +443,8 @@
             filterBtns.forEach(b => b.classList.remove('active'));
             const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
             if (allBtn) allBtn.classList.add('active');
+            
+            initPriceSlider();
             
             renderCollectionsProducts('all');
         }
